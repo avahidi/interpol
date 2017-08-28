@@ -46,7 +46,7 @@ func TestAddNormal(t *testing.T) {
 
 func TestAddMixed(t *testing.T) {
 	ip := NewInterpol()
-	c, err := ip.Add("prefix{{counter, start=0, end=10, step=3}}postfix")
+	c, err := ip.Add("prefix{{counter, min=0, max=10, step=3}}postfix")
 	if err != nil {
 		t.Fatalf("failed to add normal string: %v", err)
 	}
@@ -58,7 +58,7 @@ func TestAddMixed(t *testing.T) {
 
 func TestAddMulti(t *testing.T) {
 	ip := NewInterpol()
-	c, err := ip.Add("{{counter, start=0, end=2}}{{counter, start=4, end=5}}{{counter, start=9, end=9}}")
+	c, err := ip.Add("{{counter, min=0, max=2}}{{counter, min=4, max=5}}{{counter, min=9, max=9}}")
 	if err != nil {
 		t.Fatalf("failed to add multi string: %v", err)
 	}

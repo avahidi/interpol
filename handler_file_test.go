@@ -1,7 +1,6 @@
 package interpol
 
 import (
-	"fmt"
 	"testing"
 )
 
