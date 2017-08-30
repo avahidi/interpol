@@ -1,68 +1,83 @@
 
+
+.. image:: logo.svg
+   :align: center
+
 Interpol
 ========
 
-Interpol is an `string interpolation <https://en.wikipedia.org/wiki/String_interpolation>`_
-library for people doing security research or penetration testing.
-
-The library is written in the Go programming language and has a very simple yet flexible API.
-
-
-Background
-----------
-
-There is a bit of story behind this library, involving a hacker and a bunch mischievous security researchers.
-To make a long story short, someone had set up a phishing page impersonating our company. The login page would post this to the hacker::
-
-    http://company.com.fake.com/login?name=Joe%20Schmuck&email=joes@company.com&password=qwerty
+Interpol is a minimal `string interpolation <https://en.wikipedia.org/wiki/String_interpolation>`_
+library written in golang.
+It can be used to generate a series of strings from a set of rules.
+This is useful for example for people doing penetration testing or fuzzing.
 
 
-So what if you could build a script that accessed the following URL 1 million times::
-
-    http://company.com.fake.com/login?name=<FirstName>%20<LastName>&email=<UserName>@company.com&password=<Password>
-
-. . . with <FirstName> & <LastName> randomly selected from a list of common Western names and <UserName> & <Password> from lists of common usernames and weak passwords.
-And just out of habit, lets pick "User-Agent" from a list of common browser signatures...
-
-
-And this was when the idea behind this library was born...
-
-
-Using interpol
+Using Interpol
 --------------
 
-Consider the following example::
+Assume you have been given the task of finding employees who use a weak password.
+You are given a file containing all 1000 usernames and another file containing
+1000 weak password. You can instruct Interpol to use these files like so::
 
     import "bitbucket.org/vahidi/interpol"
-    . . .
+    
+    // ...
+    
     ip := interpol.New()
-    c, err := ip.Add("n={{counter min=5 max=7}}")
-    . . .
+    // error checks not shown below.
+    user, err := ip.Add("{{file filename=usernames.txt}}")
+    password, err := ip.Add("{{file filename=weakpasswords.txt}}")
+
+This creates two objects representing the user name and password.
+You can now iterate over all possible values::
+
     for {
-        fmt.Println(c.String() )
+        if checkCredential( user.String(), password.String()) {
+            report(user.String() )
+        }
         if ! ip.Next() {
             break
         }
     }
 
+Note that this will result in 100 * 100 = 10.000 username/password pairs.
+But you probably don't need a library to do that so lets try something more 
+interesting...
 
-Here {{counter min=5 max=7}} is a "counter" interpolator. Running this code will output::
+Assume you suspect user "joe" is using a password that is a combination of 
+a weak password plus two additional characters, the first one being a number
+and the second one '$'. You can now narrow down your search by doing this::
 
-    n=5
-    n=6
-    n=7
+    // again, error checks omitted
+    user, err := ip.Add("joe")
+    password, err := ip.Add("{{file filename=weakpasswords.txt}}{{counter min=0 max=9}}$")
 
-Other common interpolators are "file" and "random". Consider this example::
+The first string is static, the second one however has 1 static and 2 interpolated elements.
+This configuration will generate only 100 *10 = 1000 pairs.
 
-    // assume domains.txt contains a list of domain names such as microsoft.com and google.com
-    c, err := ip.Add("http//{{random min=0 max=999 count=50 format='%03d'}}.{{file filename=domains.txt mode=perm}}")
 
-This could for example generate the following strings::
+Interpolators
+-------------
 
-    http://000.microsoft.com
-    http://900.google.com
-    http://700.microsoft.com
-    ...
+Currently the following "interpolators" are supported:
+
+ - static text (no interpolation)
+ - counter
+ - random
+ - file
+
+Each support a different number of parameters. 
+See the examples for more information.
+
+
+More examples
+-------------
+
+The examples/ folder contains the following samples:
+
+ - rng - generate pseudorandom between 0000 and 9999
+ - hackernews - download 3 random HN comments from firebase
+ - password - the example shown above
 
 
 License

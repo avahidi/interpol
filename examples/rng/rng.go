@@ -1,9 +1,9 @@
 package main
 
 import (
+	"bitbucket.org/vahidi/interpol"
 	"fmt"
 	"log"
-	"bitbucket.org/vahidi/interpol"
 )
 
 func main() {
@@ -18,7 +18,7 @@ func main() {
 		fmt.Printf("%s ", rs)
 		if !ip.Next() {
 			break
-		}		
-	}	
+		}
+	}
 	fmt.Println()
 }
