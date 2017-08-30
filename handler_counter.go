@@ -4,14 +4,14 @@ import (
 	"fmt"
 )
 
-type CounterHandler struct {
+type counterHandler struct {
 	min, max, step int
 	curr           int
 	format         string
 }
 
-func NewCounterHandler(text string, data *InterpolatorData) (Handler, error) {
-	ret := &CounterHandler{
+func newCounterHandler(text string, data *InterpolatorData) (Handler, error) {
+	ret := &counterHandler{
 		min:    data.GetInteger("min", 0),
 		max:    data.GetInteger("max", 10),
 		step:   data.GetInteger("step", 1),
@@ -21,20 +21,24 @@ func NewCounterHandler(text string, data *InterpolatorData) (Handler, error) {
 	return ret, nil
 }
 
-func (this *CounterHandler) done() bool {
-	return (this.step > 0 && this.curr > this.max) || (this.step < 0 && this.curr < this.max)
+func (ch *counterHandler) done() bool {
+	return (ch.step > 0 && ch.curr > ch.max) || (ch.step < 0 && ch.curr < ch.max)
 }
 
-func (this *CounterHandler) String() string {
-	return fmt.Sprintf(this.format, this.curr)
+func (ch *counterHandler) String() string {
+	return fmt.Sprintf(ch.format, ch.curr)
 }
-func (this *CounterHandler) Next() bool {
-	if !this.done() {
-		this.curr += this.step
+func (ch *counterHandler) Next() bool {
+	if !ch.done() {
+		ch.curr += ch.step
 	}
-	return !this.done()
+	return !ch.done()
 }
 
-func (this *CounterHandler) Reset() {
-	this.curr = this.min
+func (ch *counterHandler) Reset() {
+	ch.curr = ch.min
+}
+
+func init() {
+	addDefaultFactory("counter", newCounterHandler)
 }

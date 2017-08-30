@@ -1,20 +1,20 @@
 package interpol
 
-type TextHandler struct {
+type textHandler struct {
 	text string
 }
 
-func NewTextHandler(text string, data *InterpolatorData) (Handler, error) {
-	return &TextHandler{text: text}, nil
+func newTextHandler(text string, data *InterpolatorData) (Handler, error) {
+	return &textHandler{text: text}, nil
 }
 
-func (this *TextHandler) String() string {
-	return this.text
+func (t *textHandler) String() string {
+	return t.text
 }
-func (this *TextHandler) Next() bool {
+func (t *textHandler) Next() bool {
 	return false
 }
 
-func (this *TextHandler) Reset() {
+func (t *textHandler) Reset() {
 	// empty
 }

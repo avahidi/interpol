@@ -6,13 +6,44 @@ import (
 	"strings"
 )
 
-type element struct {
-	isStatic bool
-	text     string
+// TextElement represents a sub-string that is either static or an interpolator
+// (this internal data structure is public mainly to simplify testing)
+type TextElement struct {
+	Static bool
+	Text   string
 }
 
-// like strings.Split() but handles ' and " and \
-func parseInterpolator(text string) (*InterpolatorData, error) {
+
+// remove spaces when the command looks like this
+// cmd prop = value
+// cmd prop1 prop2 = value
+// cmd prop1 prop2 =value
+func removeSpacesInCommand(list []string) [] string {
+	ret := make([]string, 0)
+	ret = append(ret, list[0])
+	
+	for i, last := 1, len(list)-1; i <= last; i++ {
+		out := list[i]	
+		if strings.Index(list[i], "=") == - 1 && i < last {			
+			if next := strings.Trim(list[i + 1], " \t") ; next[0] == '=' {				
+				out = out + next
+				i++
+				if next == "=" && i < last && strings.Index(list[i + 1], "=") == -1 {
+					out = out + strings.Trim(list[i + 1], " \t") 
+					i++						
+				}
+			}
+
+		}
+		ret = append(ret, out)
+	}
+
+	return ret
+}
+
+// ParseInterpolator parses the interpolator TextElements.
+// It is basically a betterversion of strings.Split() that handles ' and " and \
+func ParseInterpolator(text string) (*InterpolatorData, error) {
 	const (
 		normal = iota
 		waitMeta
@@ -76,6 +107,8 @@ func parseInterpolator(text string) (*InterpolatorData, error) {
 		return nil, fmt.Errorf("type invalid: %s", text)
 	}
 
+	list = removeSpacesInCommand(list)
+
 	i := &InterpolatorData{Type: list[0], Properties: make(map[string]string)}
 	for _, p := range list[1:] {
 		p0 := strings.Trim(p, " \t")
@@ -92,29 +125,31 @@ func parseInterpolator(text string) (*InterpolatorData, error) {
 	return i, nil
 }
 
-func parseLine(line string) ([]element, error) {
+// ParseLine divides a line into a number of TextElements that
+// are either a static string or an interpolator description
+func ParseLine(line string) ([]TextElement, error) {
 
 	if len(line) == 0 {
-		return []element{}, fmt.Errorf("Empty line")
+		return []TextElement{}, fmt.Errorf("Empty line")
 	}
 
-	ret := make([]element, 0)
+	ret := make([]TextElement, 0)
 	for len(line) > 0 {
 		n := strings.Index(line, "{{")
 		if n == -1 {
-			ret = append(ret, element{isStatic: true, text: line})
+			ret = append(ret, TextElement{Static: true, Text: line})
 			line = ""
 		} else {
 			if n != 0 {
-				ret = append(ret, element{isStatic: true, text: line[:n]})
+				ret = append(ret, TextElement{Static: true, Text: line[:n]})
 			}
 			line = line[n+2:]
 			m := strings.Index(line, "}}")
 			if m == -1 {
-				ret = append(ret, element{isStatic: false, text: line})
+				ret = append(ret, TextElement{Static: false, Text: line})
 				line = ""
 			} else {
-				ret = append(ret, element{isStatic: false, text: line[:m]})
+				ret = append(ret, TextElement{Static: false, Text: line[:m]})
 				line = line[m+2:]
 			}
 		}

@@ -33,7 +33,9 @@ Using interpol
 
 Consider the following example::
 
-    ip := NewInterpol()
+    import "bitbucket.org/vahidi/interpol"
+    . . .
+    ip := interpol.New()
     c, err := ip.Add("n={{counter min=5 max=7}}")
     . . .
     for {

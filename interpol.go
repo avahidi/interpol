@@ -7,14 +7,14 @@ import (
 	"strings"
 )
 
-var baseHandlerFactories = map[string]HandlerFactory{
-	"text":    NewTextHandler,
-	"counter": NewCounterHandler,
-	"random":  NewRandomHandler,
-	"file":    NewFileHandler,
+// default factories are added to all interpolators upon creation
+var defaultFactories = map[string]HandlerFactory{}
+
+func addDefaultFactory(name string, factory HandlerFactory) {
+	defaultFactories[name] = factory
 }
 
-// InterpolatedString
+// InterpolatedString contains an interpolator object
 type InterpolatedString struct {
 	handlers []Handler
 	buffer   *bytes.Buffer
@@ -29,28 +29,32 @@ func newInterpolatedString(size int) *InterpolatedString {
 	return ret
 }
 
-func (this *InterpolatedString) String() string {
-	this.buffer.Reset()
-	for _, h := range this.handlers {
-		this.buffer.WriteString(h.String())
+// convert InterpolatedString to a string
+func (ips *InterpolatedString) String() string {
+	ips.buffer.Reset()
+	for _, h := range ips.handlers {
+		ips.buffer.WriteString(h.String())
 	}
-	return this.buffer.String()
+	return ips.buffer.String()
 }
 
-// InterpolatorData
+// InterpolatorData interpolator command in a more accesible form
 type InterpolatorData struct {
 	Type       string
 	Properties map[string]string
 }
 
-func (this *InterpolatorData) GetString(name string, def string) string {
-	if s, okay := this.Properties[name]; okay {
+// GetString extracts a string from interpolation data
+func (id *InterpolatorData) GetString(name string, def string) string {
+	if s, okay := id.Properties[name]; okay {
 		return s
 	}
 	return def
 }
-func (this *InterpolatorData) GetInteger(name string, def int) int {
-	if s, okay := this.Properties[name]; okay {
+
+// GetInteger extracts an integer from interpolation data
+func (id *InterpolatorData) GetInteger(name string, def int) int {
+	if s, okay := id.Properties[name]; okay {
 		n, err := strconv.Atoi(s)
 		if err == nil {
 			return n
@@ -66,54 +70,60 @@ type Handler interface {
 	Reset()
 }
 
+// HandlerFactory creates a new handler for a given text or command
 type HandlerFactory func(text string, data *InterpolatorData) (Handler, error)
 
-// Interpol contains the context for everything
+// Interpol context for an interpolation
 type Interpol struct {
 	factory  map[string]HandlerFactory
 	handlers []Handler
 }
 
-func NewInterpol() *Interpol {
+// New creates a new interpolator context
+func New() *Interpol {
 	ret := &Interpol{}
 	ret.factory = make(map[string]HandlerFactory)
 	ret.handlers = make([]Handler, 0)
 
 	// register the base handlers
-	for k, v := range baseHandlerFactories {
+	for k, v := range defaultFactories {
 		ret.AddHandler(k, v)
 	}
 	return ret
 }
 
-func (this *Interpol) Reset() {
-	for _, h := range this.handlers {
+// Reset resets everything to its original state
+func (ip *Interpol) Reset() {
+	for _, h := range ip.handlers {
 		h.Reset()
 	}
 }
 
-func (this *Interpol) Next() bool {
-	for i := 0; i < len(this.handlers); i++ {
-		if this.handlers[i].Next() {
+// Next calculates the next value
+func (ip *Interpol) Next() bool {
+	for i := 0; i < len(ip.handlers); i++ {
+		if ip.handlers[i].Next() {
 			return true
 		}
-		this.handlers[i].Reset()
+		ip.handlers[i].Reset()
 	}
 	return false
 }
 
-func (this *Interpol) AddHandler(type_ string, creator HandlerFactory) error {
-	if _, okay := this.factory[type_]; okay {
-		return fmt.Errorf("Handler for '%s' already exists", type_)
+// AddHandler adds a handler for a specific type of interpolator
+func (ip *Interpol) AddHandler(typ string, creator HandlerFactory) error {
+	if _, okay := ip.factory[typ]; okay {
+		return fmt.Errorf("Handler for '%s' already exists", typ)
 	}
-	this.factory[type_] = creator
+	ip.factory[typ] = creator
 	return nil
 }
 
-func (this *Interpol) Add(text string) (*InterpolatedString, error) {
+// Add creates a new string to be interpolated
+func (ip *Interpol) Add(text string) (*InterpolatedString, error) {
 
 	// parse the line for elements
-	els, err := parseLine(text)
+	els, err := ParseLine(text)
 	if err != nil {
 		return nil, fmt.Errorf("Unable to parse '%s'", text)
 	}
@@ -123,22 +133,22 @@ func (this *Interpol) Add(text string) (*InterpolatedString, error) {
 	for i, e := range els {
 		var factory HandlerFactory
 		var id *InterpolatorData
-		if e.isStatic {
-			factory = NewTextHandler
+		if e.Static {
+			factory = newTextHandler
 			id = nil
 		} else {
-			id, err = parseInterpolator(e.text)
+			id, err = ParseInterpolator(e.Text)
 			if err != nil {
 				return nil, err
 			}
 			var okay bool
-			factory, okay = this.factory[strings.ToLower(id.Type)]
+			factory, okay = ip.factory[strings.ToLower(id.Type)]
 			if !okay {
-				return nil, fmt.Errorf("Cannot find a handler for '%s'", e.text)
+				return nil, fmt.Errorf("Cannot find a handler for '%s'", e.Text)
 			}
 		}
 
-		handler, err := factory(e.text, id)
+		handler, err := factory(e.Text, id)
 		if err != nil {
 			return nil, fmt.Errorf("Cannot initialize handler '%s': %v", text, err)
 		}
@@ -148,7 +158,7 @@ func (this *Interpol) Add(text string) (*InterpolatedString, error) {
 
 	// add the new handlers to the list of all handlers in this context
 	for _, h := range ret.handlers {
-		this.handlers = append(this.handlers, h)
+		ip.handlers = append(ip.handlers, h)
 	}
 	return ret, nil
 }

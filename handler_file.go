@@ -23,9 +23,9 @@ var modeMap = map[string]int{
 	"rand":        modeRandom,
 }
 
-type FileHandler struct {
+type fileHandler struct {
 	curr, count int
-	index, max  int
+	index, max  int // for lines
 	mode        int
 	lines       []string
 }
@@ -56,17 +56,27 @@ func readFileLines(filename string) ([]string, error) {
 }
 
 func permutateLines(lines []string) {
-	for i, s1 := range lines {
-		// Lets copy Microsofts browser selection hidden permutation bias...
-		j := rand.Int() % len(lines)
-		s2 := lines[j]
-		lines[j] = s1
-		lines[i] = s2
+	if len(lines) < 2 {
+		return
 	}
+	// first loop ensures that we never repeat ourselves
+	last := lines[len(lines)-1]
+	for {
+		// permutation bias? well it worked for Microsofts browser selection...
+		for i := range lines {
+			j := rand.Int() % len(lines)
+			lines[i], lines[j] = lines[j], lines[i]
+		}
+
+		if last != lines[0] {
+			return
+		}
+	}
+
 }
 
-func NewFileHandler(text string, data *InterpolatorData) (Handler, error) {
-	ret := &FileHandler{
+func newfileHandler(text string, data *InterpolatorData) (Handler, error) {
+	ret := &fileHandler{
 		count: data.GetInteger("count", -1),
 	}
 
@@ -88,6 +98,7 @@ func NewFileHandler(text string, data *InterpolatorData) (Handler, error) {
 		return nil, fmt.Errorf("Empty file")
 	}
 
+	// user didn't specify count...
 	if ret.count <= 0 {
 		ret.count = ret.max
 	}
@@ -104,41 +115,45 @@ func NewFileHandler(text string, data *InterpolatorData) (Handler, error) {
 	return ret, nil
 }
 
-func (this *FileHandler) done() bool {
-	return this.curr >= this.count
+func (fh *fileHandler) done() bool {
+	return fh.curr >= fh.count
 }
 
-func (this *FileHandler) String() string {
-	return this.lines[this.index]
+func (fh *fileHandler) String() string {
+	return fh.lines[fh.index]
 }
-func (this *FileHandler) Next() bool {
-	if this.done() {
+
+func (fh *fileHandler) Next() bool {
+	if fh.done() {
 		return false
 	}
 
-	this.curr++
-	switch this.mode {
+	fh.curr++
+	switch fh.mode {
 	case modeRandom:
-		this.index = rand.Int() % len(this.lines)
+		fh.index = rand.Int() % len(fh.lines)
 	default:
-		this.index++
-	}
-	if this.index >= this.max {
-		switch this.mode {
-		case modePerm:
-			permutateLines(this.lines)
+		fh.index++
+		if fh.index >= fh.max {
+			if fh.mode == modePerm {
+				permutateLines(fh.lines)
+			}
+			fh.index = fh.index % fh.max
 		}
-		this.index = this.index % this.max
 	}
 
-	return !this.done()
+	return !fh.done()
 }
 
-func (this *FileHandler) Reset() {
-	this.curr = 0
-	this.index = 0
+func (fh *fileHandler) Reset() {
+	fh.curr = 0
+	fh.index = 0
 
-	if this.mode == modePerm {
-		permutateLines(this.lines)
+	if fh.mode == modePerm {
+		permutateLines(fh.lines)
 	}
+}
+
+func init() {
+	addDefaultFactory("file", newfileHandler)
 }

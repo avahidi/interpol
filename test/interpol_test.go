@@ -1,0 +1,86 @@
+package test
+
+import (
+	"testing"
+
+	"bitbucket.org/vahidi/interpol"
+)
+
+// testdata
+var simpleSingleTestdata = []testdataSingle{
+	{"basic  static", "thisthat", []string{"thisthat"}},
+	{"basic mixed", "prefix{{counter, min=0, max=10, step=3}}postfix",
+		[]string{"prefix0postfix", "prefix3postfix", "prefix6postfix", "prefix9postfix"}},
+	{"basic multi",
+		"{{counter, min=0, max=2}}{{counter, min=4, max=5}}{{counter, min=9, max=9}}",
+		[]string{"049", "149", "249", "059", "159", "259"}},
+}
+
+var simpleDualTestdata = []testdataDual{
+	{"two static", "this", "that", []string{"this"}, []string{"that"}},
+	{"two mixed", "this", "{{counter min=0 max=1}}", []string{"this", "this"}, []string{"0", "1"}},
+	{"two both", "{{counter min=3 max=2 step=-1}}", "{{counter min=0 max=1}}",
+		[]string{"3", "2", "3", "2"}, []string{"0", "0", "1", "1"}},
+}
+
+func NilCreator(text string, data *interpol.InterpolatorData) (interpol.Handler, error) {
+	return nil, nil
+}
+
+// test corner cases and partial use
+func TestAddHandler(t *testing.T) {
+	ip := interpol.New()
+	err := ip.AddHandler("monkey", NilCreator)
+	if err != nil {
+		t.Errorf("could nto add dummy handler, %v", err)
+	}
+
+	err = ip.AddHandler("monkey", NilCreator)
+	if err == nil {
+		t.Errorf("should not add handler twice")
+	}
+}
+
+func TestInterpolEmpty(t *testing.T) {
+	ip := interpol.New()
+	if _, err := ip.Add(""); err == nil {
+		t.Errorf("should not add empty handler")
+	}
+}
+
+func TestInterpolNone(t *testing.T) {
+	ip := interpol.New()
+	if ip.Next() {
+		t.Errorf("terminate when no interpolations exist")
+	}
+}
+
+func TestInterpolReset(t *testing.T) {
+	ip := interpol.New()
+	str, err := ip.Add("{{counter, min=0, max=4, step=1}}")
+	if err != nil {
+		t.Errorf("failed to add normal string: %v", err)
+	}
+
+	// 0
+	ip.Next() // 1
+	ip.Next() // 2
+	if str.String() != "2" {
+		t.Errorf("incorrect value before reset: %v", str)
+	}
+
+	ip.Reset() // 0
+	ip.Next()  // 1
+	if str.String() != "1" {
+		t.Errorf("incorrect value after reset: %v", str)
+	}
+}
+
+// test normal use cases
+func TestInterpolSingle(t *testing.T) {
+	helperTestSingle(t, simpleSingleTestdata)
+}
+
+func TestInterpolDual(t *testing.T) {
+	helperTestDual(t, simpleDualTestdata)
+}
