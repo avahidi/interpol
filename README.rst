@@ -85,6 +85,6 @@ License
 
 This library is licensed under the GNU GENERAL PUBLIC LICENSE, version 2 (GPLv2).
 
-See the file COPYING for more information
+See the file LICENSE for more information
 
 
