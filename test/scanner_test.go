@@ -30,11 +30,11 @@ var interpolTestdata = []interpolParserTestdata{
 	{"remove space 3", "spacetype nodata datax =valuex ", "spacetype",
 		map[string]string{"nodata": "", "datax": "valuex"}},
 	{"remove space 4", "spacetype nodata1 nodata2", "spacetype",
-		map[string]string{"nodata1": "", "nodata2": ""}},		
+		map[string]string{"nodata1": "", "nodata2": ""}},
 	{"remove space 5", "spacetype nodata1 nodata2 =", "spacetype",
-		map[string]string{"nodata1": "", "nodata2": ""}},		
+		map[string]string{"nodata1": "", "nodata2": ""}},
 	{"remove space 6", "spacetype nodata1 nodata2=", "spacetype",
-		map[string]string{"nodata1": "", "nodata2": ""}},		
+		map[string]string{"nodata1": "", "nodata2": ""}},
 }
 
 var lineTestdata = []lineParserTestdata{

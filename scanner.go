@@ -13,24 +13,23 @@ type TextElement struct {
 	Text   string
 }
 
-
 // remove spaces when the command looks like this
 // cmd prop = value
 // cmd prop1 prop2 = value
 // cmd prop1 prop2 =value
-func removeSpacesInCommand(list []string) [] string {
+func removeSpacesInCommand(list []string) []string {
 	ret := make([]string, 0)
 	ret = append(ret, list[0])
-	
+
 	for i, last := 1, len(list)-1; i <= last; i++ {
-		out := list[i]	
-		if strings.Index(list[i], "=") == - 1 && i < last {			
-			if next := strings.Trim(list[i + 1], " \t") ; next[0] == '=' {				
+		out := list[i]
+		if strings.Index(list[i], "=") == -1 && i < last {
+			if next := strings.Trim(list[i+1], " \t"); next[0] == '=' {
 				out = out + next
 				i++
-				if next == "=" && i < last && strings.Index(list[i + 1], "=") == -1 {
-					out = out + strings.Trim(list[i + 1], " \t") 
-					i++						
+				if next == "=" && i < last && strings.Index(list[i+1], "=") == -1 {
+					out = out + strings.Trim(list[i+1], " \t")
+					i++
 				}
 			}
 
