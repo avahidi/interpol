@@ -162,3 +162,16 @@ func (ip *Interpol) Add(text string) (*InterpolatedString, error) {
 	}
 	return ret, nil
 }
+
+// AddMultiple creates multiple strings to be interpolated
+func (ip *Interpol) AddMultiple(texts ...string) ([]*InterpolatedString, error) {
+	ret := make([]*InterpolatedString, len(texts))
+	for i, text := range texts {
+		ips, err := ip.Add(text)
+		if err != nil {
+			return nil, err
+		}
+		ret[i] = ips
+	}
+	return ret, nil
+}

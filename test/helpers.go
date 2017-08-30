@@ -23,15 +23,10 @@ type testdataDual struct {
 // create interpolation and get all data
 func helperInterpolateAll(cmds ...string) ([][]string, error) {
 	ip := interpol.New()
-	strs := make([]*interpol.InterpolatedString, len(cmds))
-	for i, c := range cmds {
-		str, err := ip.Add(c)
-		if err != nil {
-			return nil, err
-		}
-		strs[i] = str
+	strs, err := ip.AddMultiple(cmds...)
+	if err != nil {
+		return nil, err
 	}
-
 	return helperExtractAll(ip, strs...), nil
 }
 
