@@ -1,4 +1,4 @@
-package test
+package interpol
 
 import (
 	"strconv"

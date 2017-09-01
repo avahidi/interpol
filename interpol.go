@@ -89,6 +89,7 @@ func New() *Interpol {
 	for k, v := range defaultFactories {
 		ret.AddHandler(k, v)
 	}
+	ret.Reset()
 	return ret
 }
 
@@ -123,7 +124,7 @@ func (ip *Interpol) AddHandler(typ string, creator HandlerFactory) error {
 func (ip *Interpol) Add(text string) (*InterpolatedString, error) {
 
 	// parse the line for elements
-	els, err := ParseLine(text)
+	els, err := parseLine(text)
 	if err != nil {
 		return nil, fmt.Errorf("Unable to parse '%s'", text)
 	}
@@ -133,22 +134,22 @@ func (ip *Interpol) Add(text string) (*InterpolatedString, error) {
 	for i, e := range els {
 		var factory HandlerFactory
 		var id *InterpolatorData
-		if e.Static {
+		if e.static {
 			factory = newTextHandler
 			id = nil
 		} else {
-			id, err = ParseInterpolator(e.Text)
+			id, err = parseInterpolator(e.text)
 			if err != nil {
 				return nil, err
 			}
 			var okay bool
 			factory, okay = ip.factory[strings.ToLower(id.Type)]
 			if !okay {
-				return nil, fmt.Errorf("Cannot find a handler for '%s'", e.Text)
+				return nil, fmt.Errorf("Cannot find a handler for '%s'", e.text)
 			}
 		}
 
-		handler, err := factory(e.Text, id)
+		handler, err := factory(e.text, id)
 		if err != nil {
 			return nil, fmt.Errorf("Cannot initialize handler '%s': %v", text, err)
 		}

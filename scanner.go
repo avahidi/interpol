@@ -6,11 +6,10 @@ import (
 	"strings"
 )
 
-// TextElement represents a sub-string that is either static or an interpolator
-// (this internal data structure is public mainly to simplify testing)
-type TextElement struct {
-	Static bool
-	Text   string
+// textElement represents a sub-string that is either static or an interpolator
+type textElement struct {
+	static bool
+	text   string
 }
 
 // remove spaces when the command looks like this
@@ -40,9 +39,9 @@ func removeSpacesInCommand(list []string) []string {
 	return ret
 }
 
-// ParseInterpolator parses the interpolator TextElements.
+// ParseInterpolator parses the interpolator textElements.
 // It is basically a betterversion of strings.Split() that handles ' and " and \
-func ParseInterpolator(text string) (*InterpolatorData, error) {
+func parseInterpolator(text string) (*InterpolatorData, error) {
 	const (
 		normal = iota
 		waitMeta
@@ -124,31 +123,31 @@ func ParseInterpolator(text string) (*InterpolatorData, error) {
 	return i, nil
 }
 
-// ParseLine divides a line into a number of TextElements that
+// ParseLine divides a line into a number of textElements that
 // are either a static string or an interpolator description
-func ParseLine(line string) ([]TextElement, error) {
+func parseLine(line string) ([]textElement, error) {
 
 	if len(line) == 0 {
-		return []TextElement{}, fmt.Errorf("Empty line")
+		return []textElement{}, fmt.Errorf("Empty line")
 	}
 
-	ret := make([]TextElement, 0)
+	ret := make([]textElement, 0)
 	for len(line) > 0 {
 		n := strings.Index(line, "{{")
 		if n == -1 {
-			ret = append(ret, TextElement{Static: true, Text: line})
+			ret = append(ret, textElement{static: true, text: line})
 			line = ""
 		} else {
 			if n != 0 {
-				ret = append(ret, TextElement{Static: true, Text: line[:n]})
+				ret = append(ret, textElement{static: true, text: line[:n]})
 			}
 			line = line[n+2:]
 			m := strings.Index(line, "}}")
 			if m == -1 {
-				ret = append(ret, TextElement{Static: false, Text: line})
+				ret = append(ret, textElement{static: false, text: line})
 				line = ""
 			} else {
-				ret = append(ret, TextElement{Static: false, Text: line[:m]})
+				ret = append(ret, textElement{static: false, text: line[:m]})
 				line = line[m+2:]
 			}
 		}

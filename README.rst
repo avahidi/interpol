@@ -16,13 +16,13 @@ Using Interpol
 --------------
 
 Assume you have been given the task of finding employees who use a weak password.
-You are given a file containing all 1000 usernames and another file containing
-1000 weak password. You can instruct Interpol to use these files like so::
+You are given a file containing all 100 usernames and another file containing
+100 weak password. You can instruct Interpol to use these files like so::
 
     import "bitbucket.org/vahidi/interpol"
-    
+
     // ...
-    
+
     ip := interpol.New()
     // error checks not shown below.
     user, err := ip.Add("{{file filename=usernames.txt}}")
@@ -41,10 +41,10 @@ You can now iterate over all possible values::
     }
 
 Note that this will result in 100 * 100 = 10.000 username/password pairs.
-But you probably don't need a library to do that so lets try something more 
+But you probably don't need a library to do that so lets try something more
 interesting...
 
-Assume you suspect user "joe" is using a password that is a combination of 
+Assume you suspect user "joe" is using a password that is a combination of
 a weak password plus two additional characters, the first one being a number
 and the second one '$'. You can now narrow down your search by doing this::
 
@@ -53,31 +53,36 @@ and the second one '$'. You can now narrow down your search by doing this::
     password, err := ip.Add("{{file filename=weakpasswords.txt}}{{counter min=0 max=9}}$")
 
 The first string is static, the second one however has 1 static and 2 interpolated elements.
-This configuration will generate only 100 *10 = 1000 pairs.
+This configuration will generate only 1 * 1 * 100 * 10 = 1000 pairs.
 
 
 Interpolators
 -------------
 
-Currently the following "interpolators" are supported:
+An interpolation has the following format::
 
- - static text (no interpolation)
- - counter
- - random
- - file
+    {{type parameter1=value1 parameter2=value2 ... }}
 
-Each support a different number of parameters. 
-See the examples for more information.
+Where type is one of the following: *counter, random, file and set*.
+Each type supports a set of parameters:
+
+- **counter**: min, max, step, format
+- **random**: min, max, count, format
+- **file**: filename, count, mode
+- **set**: data, sep, count, mode
+
+where *mode* is any of linear, random or perm. 
+And *format* is standard printf format string, for example "0x%08X".
 
 
 More examples
 -------------
 
-The examples/ folder contains the following samples:
+The folder examples/ contains the following samples:
 
  - rng - generate pseudorandom between 0000 and 9999
  - hackernews - download 3 random HN comments from firebase
- - password - the example shown above
+ - password - variation of the example shown above
 
 
 License

@@ -27,7 +27,6 @@ func downloadPage(url string, agent string) ([]byte, error) {
 	req.Header.Set("User-Agent", agent)
 	resp, err := client.Do(req)
 	if err != nil {
-		fmt.Println("???", resp, err)
 		return nil, err
 	}
 	defer resp.Body.Close()

@@ -1,9 +1,7 @@
-package test
+package interpol
 
 import (
 	"testing"
-
-	"bitbucket.org/vahidi/interpol"
 )
 
 type interpolParserTestdata struct {
@@ -16,7 +14,7 @@ type interpolParserTestdata struct {
 type lineParserTestdata struct {
 	log      string
 	line     string
-	expected []interpol.TextElement
+	expected []textElement
 }
 
 var interpolTestdata = []interpolParserTestdata{
@@ -38,20 +36,20 @@ var interpolTestdata = []interpolParserTestdata{
 }
 
 var lineTestdata = []lineParserTestdata{
-	{"just text", "justtext", []interpol.TextElement{
-		{Static: true, Text: "justtext"}}},
-	{"just interpol", "{{justinterpol}}", []interpol.TextElement{
-		{Static: false, Text: "justinterpol"}}},
-	{"mixed line", "stuffbefore{{interpol}}stuffafter", []interpol.TextElement{
-		{Static: true, Text: "stuffbefore"},
-		{Static: false, Text: "interpol"},
-		{Static: true, Text: "stuffafter"}}},
+	{"just text", "justtext", []textElement{
+		{static: true, text: "justtext"}}},
+	{"just interpol", "{{justinterpol}}", []textElement{
+		{static: false, text: "justinterpol"}}},
+	{"mixed line", "stuffbefore{{interpol}}stuffafter", []textElement{
+		{static: true, text: "stuffbefore"},
+		{static: false, text: "interpol"},
+		{static: true, text: "stuffafter"}}},
 }
 
 // test parsing of interpol commands
 func TestParseInterpol(t *testing.T) {
 	for _, test := range interpolTestdata {
-		id, err := interpol.ParseInterpolator(test.cmd)
+		id, err := parseInterpolator(test.cmd)
 		if err != nil {
 			t.Errorf("%s: failed to parse, %v", test.log, err)
 		} else {
@@ -74,7 +72,7 @@ func TestParseInterpol(t *testing.T) {
 }
 
 func TestParseInterpolCorner(t *testing.T) {
-	_, err := interpol.ParseInterpolator("")
+	_, err := parseInterpolator("")
 	if err == nil {
 		t.Error("should not allow empty interpol")
 	}
@@ -83,7 +81,7 @@ func TestParseInterpolCorner(t *testing.T) {
 // test parsing of lines:
 func TestParseLine(t *testing.T) {
 	for _, test := range lineTestdata {
-		els, err := interpol.ParseLine(test.line)
+		els, err := parseLine(test.line)
 		if err != nil {
 			t.Errorf("%s: could not parse line, %v", test.log, err)
 		} else {
@@ -92,7 +90,7 @@ func TestParseLine(t *testing.T) {
 					test.log, len(test.expected), len(els))
 			} else {
 				for i, e := range test.expected {
-					if e.Static != els[i].Static || e.Text != els[i].Text {
+					if e.static != els[i].static || e.text != els[i].text {
 						t.Errorf("%s: element %d expected %v got %v",
 							test.log, i, e, els[i])
 					}
@@ -103,7 +101,7 @@ func TestParseLine(t *testing.T) {
 }
 
 func TestParseLineCorner(t *testing.T) {
-	_, err := interpol.ParseLine("")
+	_, err := parseLine("")
 	if err == nil {
 		t.Error("should not allow empty line")
 	}

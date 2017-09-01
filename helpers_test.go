@@ -1,9 +1,8 @@
-package test
+package interpol
 
 import (
+	"fmt"
 	"testing"
-
-	"bitbucket.org/vahidi/interpol"
 )
 
 type testdataSingle struct {
@@ -22,7 +21,7 @@ type testdataDual struct {
 
 // create interpolation and get all data
 func helperInterpolateAll(cmds ...string) ([][]string, error) {
-	ip := interpol.New()
+	ip := New()
 	strs, err := ip.AddMultiple(cmds...)
 	if err != nil {
 		return nil, err
@@ -31,15 +30,17 @@ func helperInterpolateAll(cmds ...string) ([][]string, error) {
 }
 
 // get all data from already created interpolations
-func helperExtractAll(ip *interpol.Interpol, strs ...*interpol.InterpolatedString) [][]string {
-	for ret := make([][]string, len(strs)); ; {
+func helperExtractAll(ip *Interpol, strs ...*InterpolatedString) [][]string {
+	ret := make([][]string, len(strs))
+	for {
 		for i := range strs {
 			ret[i] = append(ret[i], strs[i].String())
 		}
 		if !ip.Next() {
-			return ret
+			break
 		}
 	}
+	return ret
 }
 
 func helperTestSingle(t *testing.T, testdata []testdataSingle) {
@@ -52,7 +53,8 @@ func helperTestSingle(t *testing.T, testdata []testdataSingle) {
 
 		got := strs[0]
 		if len(got) != len(test.expected) {
-			t.Errorf("%s: expected %d got %d", test.log, len(test.expected), len(got))
+			t.Errorf("%s: expected %d elements got %d", test.log, len(test.expected), len(got))
+			fmt.Printf("%v - %v\n", test.expected, got) // DEBUG
 			return
 		}
 		for i, e := range test.expected {
@@ -73,7 +75,7 @@ func helperTestDual(t *testing.T, testdata []testdataDual) {
 
 		got1, got2 := strs[0], strs[1]
 		if len(got1) != len(test.expected1) {
-			t.Errorf("%s: expected %d got %d", test.log, len(test.expected1), len(got1))
+			t.Errorf("%s: expected %d elements got %d", test.log, len(test.expected1), len(got1))
 			return
 		}
 		for i := range got1 {

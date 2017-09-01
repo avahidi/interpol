@@ -1,6 +1,6 @@
 
 
-EXAMPLES=rng password hackernews 
+EXAMPLES=rng password hackernews
 
 .PHONY: build test examples clean fmt
 
@@ -10,7 +10,7 @@ build:
 	go build
 
 test: build
-	cd test && go test -v
+	go test -v
 
 examples: build
 	for e in $(EXAMPLES) ; do (cd examples/$$e && go run *.go ) ; done
@@ -21,5 +21,4 @@ clean:
 
 fmt:
 	go fmt
-	cd test && go fmt
 	for e in $(EXAMPLES) ; do (cd examples/$$e && go fmt ); done

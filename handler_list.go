@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-// file processing mode
+// processing mode
 const (
 	modeLinear = iota
 	modePerm
@@ -23,15 +23,15 @@ var modeMap = map[string]int{
 	"rand":        modeRandom,
 }
 
-type fileHandler struct {
+type listHandler struct {
 	curr, count int
-	index, max  int // for lines
+	index, max  int // for items
 	mode        int
-	lines       []string
+	items       []string
 }
 
 // some helper functions
-func readFileLines(filename string) ([]string, error) {
+func readFileitems(filename string) ([]string, error) {
 	file, err := os.Open(filename)
 	if err != nil {
 		return nil, err
@@ -55,45 +55,57 @@ func readFileLines(filename string) ([]string, error) {
 	return ret, nil
 }
 
-func permutateLines(lines []string) {
-	if len(lines) < 2 {
+func permutateitems(items []string) {
+	if len(items) < 2 {
 		return
 	}
 	// first loop ensures that we never repeat ourselves
-	last := lines[len(lines)-1]
+	last := items[len(items)-1]
 	for {
 		// permutation bias? well it worked for Microsofts browser selection...
-		for i := range lines {
-			j := rand.Int() % len(lines)
-			lines[i], lines[j] = lines[j], lines[i]
+		for i := range items {
+			j := rand.Int() % len(items)
+			items[i], items[j] = items[j], items[i]
 		}
 
-		if last != lines[0] {
+		if last != items[0] {
 			return
 		}
 	}
-
 }
 
-func newfileHandler(text string, data *InterpolatorData) (Handler, error) {
-	ret := &fileHandler{
-		count: data.GetInteger("count", -1),
-	}
-
+func newFileHandler(text string, data *InterpolatorData) (Handler, error) {
 	// get file contents
 	filename := data.GetString("filename", "")
 	if filename == "" {
 		return nil, fmt.Errorf("no filename was given")
 	}
 
-	lines, err := readFileLines(filename)
+	items, err := readFileitems(filename)
 	if err != nil {
 		return nil, err
 	}
-	ret.lines = lines
 
-	// max lines and output count
-	ret.max = len(ret.lines)
+	return newListHandler(items, data)
+}
+
+func newSetHandler(text string, data *InterpolatorData) (Handler, error) {
+	var items []string
+	sep := data.GetString("sep", "")
+	set := data.GetString("data", "")
+
+	items = strings.Split(set, sep)
+	return newListHandler(items, data)
+}
+
+func newListHandler(items []string, data *InterpolatorData) (Handler, error) {
+	ret := &listHandler{
+		count: data.GetInteger("count", -1),
+		items: items,
+		max:   len(items),
+	}
+
+	// max items and output count
 	if ret.max == 0 {
 		return nil, fmt.Errorf("Empty file")
 	}
@@ -115,15 +127,15 @@ func newfileHandler(text string, data *InterpolatorData) (Handler, error) {
 	return ret, nil
 }
 
-func (fh *fileHandler) done() bool {
+func (fh *listHandler) done() bool {
 	return fh.curr >= fh.count
 }
 
-func (fh *fileHandler) String() string {
-	return fh.lines[fh.index]
+func (fh *listHandler) String() string {
+	return fh.items[fh.index]
 }
 
-func (fh *fileHandler) Next() bool {
+func (fh *listHandler) Next() bool {
 	if fh.done() {
 		return false
 	}
@@ -131,12 +143,12 @@ func (fh *fileHandler) Next() bool {
 	fh.curr++
 	switch fh.mode {
 	case modeRandom:
-		fh.index = rand.Int() % len(fh.lines)
+		fh.index = rand.Int() % len(fh.items)
 	default:
 		fh.index++
 		if fh.index >= fh.max {
 			if fh.mode == modePerm {
-				permutateLines(fh.lines)
+				permutateitems(fh.items)
 			}
 			fh.index = fh.index % fh.max
 		}
@@ -145,15 +157,16 @@ func (fh *fileHandler) Next() bool {
 	return !fh.done()
 }
 
-func (fh *fileHandler) Reset() {
+func (fh *listHandler) Reset() {
 	fh.curr = 0
 	fh.index = 0
 
 	if fh.mode == modePerm {
-		permutateLines(fh.lines)
+		permutateitems(fh.items)
 	}
 }
 
 func init() {
-	addDefaultFactory("file", newfileHandler)
+	addDefaultFactory("file", newFileHandler)
+	addDefaultFactory("set", newSetHandler)
 }

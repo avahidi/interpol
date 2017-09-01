@@ -1,4 +1,4 @@
-package test
+package interpol
 
 import (
 	"testing"
@@ -12,7 +12,7 @@ func TestCounter(t *testing.T) {
 			[]string{"002", "004", "006", "008"}},
 		{"counter backwardtest", "{{counter, min=5, max=0, step=-1}}",
 			[]string{"5", "4", "3", "2", "1", "0"}},
-		{"counter both", "{{counter, min=1, max=2, step=1}}{{counter, min=3, max=2, step=-1}}",
-			[]string{"13", "23", "12", "22"}},
+		{"counter both", "{{counter, min=1, max=2, step=1}}{{counter, min=7, max=6, step=-1}}",
+			[]string{"17", "27", "16", "26"}},
 	})
 }

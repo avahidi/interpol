@@ -1,9 +1,7 @@
-package test
+package interpol
 
 import (
 	"testing"
-
-	"bitbucket.org/vahidi/interpol"
 )
 
 // testdata
@@ -23,13 +21,13 @@ var simpleDualTestdata = []testdataDual{
 		[]string{"3", "2", "3", "2"}, []string{"0", "0", "1", "1"}},
 }
 
-func NilCreator(text string, data *interpol.InterpolatorData) (interpol.Handler, error) {
+func NilCreator(text string, data *InterpolatorData) (Handler, error) {
 	return nil, nil
 }
 
 // test corner cases and partial use
 func TestAddHandler(t *testing.T) {
-	ip := interpol.New()
+	ip := New()
 	err := ip.AddHandler("monkey", NilCreator)
 	if err != nil {
 		t.Errorf("could nto add dummy handler, %v", err)
@@ -42,27 +40,26 @@ func TestAddHandler(t *testing.T) {
 }
 
 func TestInterpolEmpty(t *testing.T) {
-	ip := interpol.New()
+	ip := New()
 	if _, err := ip.Add(""); err == nil {
 		t.Errorf("should not add empty handler")
 	}
 }
 
 func TestInterpolNone(t *testing.T) {
-	ip := interpol.New()
+	ip := New()
 	if ip.Next() {
 		t.Errorf("terminate when no interpolations exist")
 	}
 }
 
 func TestInterpolReset(t *testing.T) {
-	ip := interpol.New()
+	ip := New()
 	str, err := ip.Add("{{counter, min=0, max=4, step=1}}")
 	if err != nil {
 		t.Errorf("failed to add normal string: %v", err)
 	}
 
-	// 0
 	ip.Next() // 1
 	ip.Next() // 2
 	if str.String() != "2" {
