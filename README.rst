@@ -71,8 +71,9 @@ Each type supports a set of parameters:
 - **file**: filename, count, mode
 - **set**: data, sep, count, mode
 
-where *mode* is any of linear, random or perm. 
-And *format* is standard printf format string, for example "0x%08X".
+Where 
+- *mode* is any of linear, random or perm
+- *format* is standard printf format string (e.g. "0x%08X")
 
 
 More examples
@@ -80,9 +81,10 @@ More examples
 
 The folder examples/ contains the following samples:
 
- - rng - generate pseudorandom between 0000 and 9999
- - hackernews - download 3 random HN comments from firebase
- - password - variation of the example shown above
+- **rng** - generate pseudo-random between 0000 and 9999
+- **hackernews** - download 3 random HN comments from firebase
+- **password** - variation of the example shown above
+- **hodor** - as the name clearly implies this one teaches you to create custom interpolators
 
 
 License
