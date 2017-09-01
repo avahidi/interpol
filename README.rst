@@ -32,7 +32,7 @@ This creates two objects representing the user name and password.
 You can now iterate over all possible values::
 
     for {
-        if checkCredential( user.String(), password.String()) {
+        if checkCredentials( user.String(), password.String()) {
             report(user.String() )
         }
         if ! ip.Next() {
@@ -52,7 +52,7 @@ and the second a currency sign. You can now specify your search by doing this::
     user, err := ip.Add("joe")
     password, err := ip.Add("{{file filename=weakpasswords.txt}}{{counter min=0 max=9}}{{set data=$£€}}")
 
-The first string is static, the second one however has 1 static and 3 interpolated elements.
+The first string is static, the second one however has 3 interpolated elements.
 This configuration will generate 1 * 100 * 10 * 3 = 3000 pairs.
 
 
@@ -63,8 +63,7 @@ An interpolation has the following format::
 
     {{type parameter1=value1 parameter2=value2 ... }}
 
-Where type is one of the following: *counter, random, file and set*.
-Each type supports a set of parameters:
+With the following types and parameters currently implemented:
 
 - **counter**: min, max, step, format
 - **random**: min, max, count, format
@@ -73,6 +72,7 @@ Each type supports a set of parameters:
 - **copy**: from
 
 Where 
+
 - *mode* is any of linear, random or perm
 - *format* is standard printf format string (e.g. "0x%08X")
 - *copy* repeats the value of another interpolator. target must have a name
