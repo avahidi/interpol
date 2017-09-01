@@ -6,8 +6,8 @@
 package main
 
 import (
-	"fmt"
 	"bitbucket.org/vahidi/interpol"
+	"fmt"
 )
 
 // this is the internal structure the handler will use for its own data
@@ -17,7 +17,7 @@ type hodor struct {
 }
 
 // this is a handler factory function, called to create new instances
-func hodorHodor(text string, data *interpol.InterpolatorData) (interpol.Handler, error) {
+func hodorHodor(ctx *interpol.Interpol, text string, data *interpol.InterpolatorData) (interpol.Handler, error) {
 	ret := &hodor{
 		count: data.GetInteger("count", 5),
 	}
@@ -52,12 +52,12 @@ func main() {
 	ip.AddHandler("hodor", hodorHodor)
 
 	hodor, err := ip.Add("{{hodor count=4}}")
-	if err != nil{
+	if err != nil {
 		fmt.Printf("Failed: %v\n", err)
-	}  else {
+	} else {
 		for {
 			fmt.Printf(hodor.String())
-			if ! ip.Next() {
+			if !ip.Next() {
 				break
 			}
 		}

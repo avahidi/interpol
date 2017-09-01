@@ -1,6 +1,7 @@
 package interpol
 
 import (
+	"strconv"
 	"testing"
 )
 
@@ -15,4 +16,18 @@ func TestCounter(t *testing.T) {
 		{"counter both", "{{counter, min=1, max=2, step=1}}{{counter, min=7, max=6, step=-1}}",
 			[]string{"17", "27", "16", "26"}},
 	})
+}
+
+func TestRandomNormal(t *testing.T) {
+	rnds, err := helperInterpolateAll("{{random, min=0, max=100, count=1000}}")
+	if err != nil {
+		t.Fatalf("failed to add normal string: %v", err)
+	}
+
+	for _, s := range rnds[0] {
+		n, err := strconv.Atoi(s)
+		if err != nil || n < 0 || n > 100 {
+			t.Errorf("random err: min=%d max=%d err=%v random=%s", 0, 100, err, s)
+		}
+	}
 }

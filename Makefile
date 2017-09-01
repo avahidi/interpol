@@ -1,6 +1,6 @@
 
 
-EXAMPLES=rng password hackernews hodor
+EXAMPLES=rng password hackernews nena hodor
 
 .PHONY: build test examples clean fmt
 

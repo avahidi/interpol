@@ -71,18 +71,20 @@ type Handler interface {
 }
 
 // HandlerFactory creates a new handler for a given text or command
-type HandlerFactory func(text string, data *InterpolatorData) (Handler, error)
+type HandlerFactory func(ctx *Interpol, text string, data *InterpolatorData) (Handler, error)
 
 // Interpol context for an interpolation
 type Interpol struct {
 	factory  map[string]HandlerFactory
 	handlers []Handler
+	exported map[string]Handler
 }
 
 // New creates a new interpolator context
 func New() *Interpol {
 	ret := &Interpol{}
 	ret.factory = make(map[string]HandlerFactory)
+	ret.exported = make(map[string]Handler)
 	ret.handlers = make([]Handler, 0)
 
 	// register the base handlers
@@ -120,6 +122,27 @@ func (ip *Interpol) AddHandler(typ string, creator HandlerFactory) error {
 	return nil
 }
 
+// import/export functions for copy
+
+func (ip *Interpol) tryImport(name string) Handler {
+	if h, found := ip.exported[name]; found {
+		return h
+	}
+	return nil
+}
+
+func (ip *Interpol) tryExport(data *InterpolatorData, h Handler) error {
+	if data != nil {
+		if name, okay := data.Properties["name"]; okay {
+			if _, seenbefore := ip.exported[name]; seenbefore {
+				return fmt.Errorf("name '%s' already exists", name)
+			}
+			ip.exported[name] = h
+		}
+	}
+	return nil
+}
+
 // Add creates a new string to be interpolated
 func (ip *Interpol) Add(text string) (*InterpolatedString, error) {
 
@@ -149,9 +172,14 @@ func (ip *Interpol) Add(text string) (*InterpolatedString, error) {
 			}
 		}
 
-		handler, err := factory(e.text, id)
+		handler, err := factory(ip, e.text, id)
 		if err != nil {
 			return nil, fmt.Errorf("Cannot initialize handler '%s': %v", text, err)
+		}
+
+		err = ip.tryExport(id, handler)
+		if err != nil {
+			return nil, err
 		}
 
 		ret.handlers[i] = handler

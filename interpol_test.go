@@ -12,6 +12,13 @@ var simpleSingleTestdata = []testdataSingle{
 	{"basic multi",
 		"{{counter, min=0, max=2}}{{counter, min=4, max=5}}{{counter, min=9, max=9}}",
 		[]string{"049", "149", "249", "059", "159", "259"}},
+
+	{"basic copy",
+		"{{counter min=0, max=2 name=counter1}}-{{copy from=counter1}}",
+		[]string{"0-0", "1-1", "2-2"}},
+	{"double copy",
+		"{{counter min=0, max=2 name=counter1}}{{counter min=5, max=6 name=counter2}}-{{copy from=counter1}}{{copy from=counter1}}{{copy from=counter2}}",
+		[]string{"05-005", "15-115", "25-225", "06-006", "16-116", "26-226"}},
 }
 
 var simpleDualTestdata = []testdataDual{
@@ -21,7 +28,7 @@ var simpleDualTestdata = []testdataDual{
 		[]string{"3", "2", "3", "2"}, []string{"0", "0", "1", "1"}},
 }
 
-func NilCreator(text string, data *InterpolatorData) (Handler, error) {
+func NilCreator(ctx *Interpol, text string, data *InterpolatorData) (Handler, error) {
 	return nil, nil
 }
 

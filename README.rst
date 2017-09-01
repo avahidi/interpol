@@ -70,11 +70,12 @@ Each type supports a set of parameters:
 - **random**: min, max, count, format
 - **file**: filename, count, mode
 - **set**: data, sep, count, mode
+- **copy**: from
 
 Where 
 - *mode* is any of linear, random or perm
 - *format* is standard printf format string (e.g. "0x%08X")
-
+- *copy* repeats the value of another interpolator. target must have a name
 
 More examples
 -------------
@@ -84,6 +85,7 @@ The folder examples/ contains the following samples:
 - **rng** - generate pseudo-random between 0000 and 9999
 - **hackernews** - download 3 random HN comments from firebase
 - **password** - variation of the example shown above
+- **nena** - demonstrates use of copy
 - **hodor** - as the name clearly implies this one teaches you to create custom interpolators
 
 

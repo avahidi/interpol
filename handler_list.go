@@ -74,7 +74,7 @@ func permutateitems(items []string) {
 	}
 }
 
-func newFileHandler(text string, data *InterpolatorData) (Handler, error) {
+func newFileHandler(ctx *Interpol, text string, data *InterpolatorData) (Handler, error) {
 	// get file contents
 	filename := data.GetString("filename", "")
 	if filename == "" {
@@ -89,7 +89,7 @@ func newFileHandler(text string, data *InterpolatorData) (Handler, error) {
 	return newListHandler(items, data)
 }
 
-func newSetHandler(text string, data *InterpolatorData) (Handler, error) {
+func newSetHandler(ctx *Interpol, text string, data *InterpolatorData) (Handler, error) {
 	var items []string
 	sep := data.GetString("sep", "")
 	set := data.GetString("data", "")
