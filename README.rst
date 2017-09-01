@@ -17,7 +17,7 @@ Using Interpol
 
 Assume you have been given the task of finding employees who use a weak password.
 You are given a file containing all 100 usernames and another file containing
-100 weak password. You can instruct Interpol to use these files like so::
+100 weak passwords. You can instruct Interpol to use these files as input like so::
 
     import "bitbucket.org/vahidi/interpol"
 
@@ -41,19 +41,19 @@ You can now iterate over all possible values::
     }
 
 Note that this will result in 100 * 100 = 10.000 username/password pairs.
-But you probably don't need a library to do that so lets try something more
-interesting...
 
+But you probably don't need a library to do that so lets try something more
+interesting.
 Assume you suspect user "joe" is using a password that is a combination of
 a weak password plus two additional characters, the first one being a number
-and the second one '$'. You can now narrow down your search by doing this::
+and the second a currency sign. You can now specify your search by doing this::
 
     // again, error checks omitted
     user, err := ip.Add("joe")
-    password, err := ip.Add("{{file filename=weakpasswords.txt}}{{counter min=0 max=9}}$")
+    password, err := ip.Add("{{file filename=weakpasswords.txt}}{{counter min=0 max=9}}{{set data=$£€}}")
 
-The first string is static, the second one however has 1 static and 2 interpolated elements.
-This configuration will generate only 1 * 1 * 100 * 10 = 1000 pairs.
+The first string is static, the second one however has 1 static and 3 interpolated elements.
+This configuration will generate 1 * 100 * 10 * 3 = 3000 pairs.
 
 
 Interpolators

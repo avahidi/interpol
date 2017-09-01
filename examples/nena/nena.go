@@ -7,8 +7,8 @@ import (
 )
 
 // We want to replace 99 with a random number. But since the same number
-// is used twice we can't have two random interpolators.
-// The solution is to use a random interpolator for the firs occurrence
+// is used twice we can't just have two random interpolators.
+// The solution is to use a random interpolator for the first occurrence
 // and a copy interpolator for the second one to point to the first one
 const text = `
 
