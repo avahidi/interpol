@@ -87,7 +87,7 @@ The folder examples/ contains the following samples:
 - **password** - variation of the example shown above
 - **nena** - demonstrates use of copy
 - **hodor** - as the name clearly implies this one teaches you to create custom interpolators
-
+- **pocli** - interpol command line tool
 
 License
 -------

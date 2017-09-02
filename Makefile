@@ -1,6 +1,6 @@
 
 
-EXAMPLES=rng password hackernews nena hodor
+EXAMPLES=rng password hackernews nena hodor pocli
 
 .PHONY: build test examples clean fmt
 
@@ -13,7 +13,7 @@ test: build
 	go test -v
 
 examples: build
-	for e in $(EXAMPLES) ; do (cd examples/$$e && go run *.go ) ; done
+	for e in $(EXAMPLES) ; do (cd examples/$$e && echo $$e: && go run *.go ) ; done
 
 clean:
 	go clean
