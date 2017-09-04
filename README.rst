@@ -1,6 +1,6 @@
 
 
-.. image:: logo.svg
+.. image:: logo.png
    :align: center
 
 Interpol
