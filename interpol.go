@@ -7,10 +7,29 @@ import (
 	"strings"
 )
 
+// interpolElement is part of an interpolated string
+type interpolElement struct {
+	handler Handler
+}
+
+func (ie *interpolElement) String() string {
+	str := ie.handler.String()
+	return str
+}
+
+func (ie *interpolElement) Reset() {
+	ie.handler.Reset()
+}
+
+func (ie *interpolElement) Next() bool {
+	return ie.handler.Next()
+}
+
 // InterpolatedString contains an interpolator object
 type InterpolatedString struct {
-	handlers []Handler
-	buffer   *bytes.Buffer
+	elements []*interpolElement
+
+	buffer *bytes.Buffer
 }
 
 func newInterpolatedString(size int) *InterpolatedString {
@@ -18,15 +37,15 @@ func newInterpolatedString(size int) *InterpolatedString {
 
 	bs := make([]byte, 1024)
 	ret.buffer = bytes.NewBuffer(bs)
-	ret.handlers = make([]Handler, size)
+	ret.elements = make([]*interpolElement, size)
 	return ret
 }
 
 // convert InterpolatedString to a string
 func (ips *InterpolatedString) String() string {
 	ips.buffer.Reset()
-	for _, h := range ips.handlers {
-		ips.buffer.WriteString(h.String())
+	for _, e := range ips.elements {
+		ips.buffer.WriteString(e.String())
 	}
 	return ips.buffer.String()
 }
@@ -59,7 +78,7 @@ func (id *InterpolatorData) GetInteger(name string, def int) int {
 // Interpol context for an interpolation
 type Interpol struct {
 	handlerFactories map[string]HandlerFactory
-	handlers         []Handler
+	elements         []*interpolElement
 	exported         map[string]Handler
 }
 
@@ -68,7 +87,7 @@ func New() *Interpol {
 	ret := &Interpol{}
 	ret.handlerFactories = make(map[string]HandlerFactory)
 	ret.exported = make(map[string]Handler)
-	ret.handlers = make([]Handler, 0)
+	ret.elements = make([]*interpolElement, 0)
 
 	ret.Reset()
 	return ret
@@ -76,19 +95,20 @@ func New() *Interpol {
 
 // Reset resets everything to its original state
 func (ip *Interpol) Reset() {
-	for _, h := range ip.handlers {
+	for _, h := range ip.elements {
 		h.Reset()
 	}
 }
 
 // Next calculates the next value
 func (ip *Interpol) Next() bool {
-	for i := 0; i < len(ip.handlers); i++ {
-		if ip.handlers[i].Next() {
+	for _, e := range ip.elements {
+		if e.Next() {
 			return true
 		}
-		ip.handlers[i].Reset()
+		e.Reset()
 	}
+
 	return false
 }
 
@@ -169,12 +189,12 @@ func (ip *Interpol) Add(text string) (*InterpolatedString, error) {
 			return nil, err
 		}
 
-		ret.handlers[i] = handler
+		ret.elements[i] = &interpolElement{handler: handler}
 	}
 
 	// add the new handlers to the list of all handlers in this context
-	for _, h := range ret.handlers {
-		ip.handlers = append(ip.handlers, h)
+	for _, h := range ret.elements {
+		ip.elements = append(ip.elements, h)
 	}
 	return ret, nil
 }
