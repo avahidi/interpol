@@ -41,10 +41,6 @@ func (ch *counterHandler) Reset() {
 	ch.curr = ch.min
 }
 
-func init() {
-	addDefaultFactory("counter", newCounterHandler)
-}
-
 // random handler generates random in some interval
 type randomHandler struct {
 	start, width, count int
@@ -95,5 +91,6 @@ func (rh *randomHandler) Reset() {
 }
 
 func init() {
-	addDefaultFactory("random", newrandomHandler)
+	addDefaultHandlerFactory("random", newrandomHandler)
+	addDefaultHandlerFactory("counter", newCounterHandler)
 }

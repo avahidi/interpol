@@ -167,6 +167,6 @@ func (fh *listHandler) Reset() {
 }
 
 func init() {
-	addDefaultFactory("file", newFileHandler)
-	addDefaultFactory("set", newSetHandler)
+	addDefaultHandlerFactory("file", newFileHandler)
+	addDefaultHandlerFactory("set", newSetHandler)
 }

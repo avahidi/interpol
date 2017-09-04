@@ -7,13 +7,6 @@ import (
 	"strings"
 )
 
-// default factories are added to all interpolators upon creation
-var defaultFactories = map[string]HandlerFactory{}
-
-func addDefaultFactory(name string, factory HandlerFactory) {
-	defaultFactories[name] = factory
-}
-
 // InterpolatedString contains an interpolator object
 type InterpolatedString struct {
 	handlers []Handler
@@ -63,34 +56,20 @@ func (id *InterpolatorData) GetInteger(name string, def int) int {
 	return def
 }
 
-// Handler represents a handler for a certain type of interpolation
-type Handler interface {
-	String() string
-	Next() bool
-	Reset()
-}
-
-// HandlerFactory creates a new handler for a given text or command
-type HandlerFactory func(ctx *Interpol, text string, data *InterpolatorData) (Handler, error)
-
 // Interpol context for an interpolation
 type Interpol struct {
-	factory  map[string]HandlerFactory
-	handlers []Handler
-	exported map[string]Handler
+	handlerFactories map[string]HandlerFactory
+	handlers         []Handler
+	exported         map[string]Handler
 }
 
 // New creates a new interpolator context
 func New() *Interpol {
 	ret := &Interpol{}
-	ret.factory = make(map[string]HandlerFactory)
+	ret.handlerFactories = make(map[string]HandlerFactory)
 	ret.exported = make(map[string]Handler)
 	ret.handlers = make([]Handler, 0)
 
-	// register the base handlers
-	for k, v := range defaultFactories {
-		ret.AddHandler(k, v)
-	}
 	ret.Reset()
 	return ret
 }
@@ -115,11 +94,20 @@ func (ip *Interpol) Next() bool {
 
 // AddHandler adds a handler for a specific type of interpolator
 func (ip *Interpol) AddHandler(typ string, creator HandlerFactory) error {
-	if _, okay := ip.factory[typ]; okay {
+	if _, okay := ip.handlerFactories[typ]; okay {
 		return fmt.Errorf("Handler for '%s' already exists", typ)
 	}
-	ip.factory[typ] = creator
+	ip.handlerFactories[typ] = creator
 	return nil
+}
+
+func (ip *Interpol) findHandlerFactory(name string) HandlerFactory {
+	name = strings.ToLower(name)
+	if def, okay := ip.handlerFactories[name]; okay {
+		return def
+	}
+
+	return findDefaultHandlerFactory(name)
 }
 
 // import/export functions for copy
@@ -165,9 +153,8 @@ func (ip *Interpol) Add(text string) (*InterpolatedString, error) {
 			if err != nil {
 				return nil, err
 			}
-			var okay bool
-			factory, okay = ip.factory[strings.ToLower(id.Type)]
-			if !okay {
+			factory = ip.findHandlerFactory(id.Type)
+			if factory == nil {
 				return nil, fmt.Errorf("Cannot find a handler for '%s'", e.text)
 			}
 		}

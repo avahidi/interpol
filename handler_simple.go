@@ -49,5 +49,5 @@ func (ch *copyHandler) Reset() {
 }
 
 func init() {
-	addDefaultFactory("copy", newCopyHandler)
+	addDefaultHandlerFactory("copy", newCopyHandler)
 }
