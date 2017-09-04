@@ -77,6 +77,12 @@ Where
 - *format* is standard printf format string (e.g. "0x%08X")
 - *copy* repeats the value of another interpolator. target must have a name
 
+Furthermore, all interpolators can include the following optional parameters:
+
+- *name* is used to name an element. This is needed if you want to copy it later
+- *modifier* defined an output modifier, such as 'tolower'
+
+
 More examples
 -------------
 
@@ -87,6 +93,7 @@ The folder examples/ contains the following samples:
 - **password** - variation of the example shown above
 - **nena** - demonstrates use of copy
 - **hodor** - as the name clearly implies this one teaches you to create custom interpolators
+- **discordia** - demonstrates use of custom modifiers
 - **pocli** - interpol command line tool
 
 License

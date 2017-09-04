@@ -9,11 +9,15 @@ import (
 
 // interpolElement is part of an interpolated string
 type interpolElement struct {
-	handler Handler
+	handler  Handler
+	modifier Modifier
 }
 
 func (ie *interpolElement) String() string {
 	str := ie.handler.String()
+	if ie.modifier != nil {
+		str = ie.modifier.Modify(str)
+	}
 	return str
 }
 
@@ -77,15 +81,17 @@ func (id *InterpolatorData) GetInteger(name string, def int) int {
 
 // Interpol context for an interpolation
 type Interpol struct {
-	handlerFactories map[string]HandlerFactory
-	elements         []*interpolElement
-	exported         map[string]Handler
+	handlerFactories  map[string]HandlerFactory
+	modifierFactories map[string]ModifierFactory
+	elements          []*interpolElement
+	exported          map[string]Handler
 }
 
 // New creates a new interpolator context
 func New() *Interpol {
 	ret := &Interpol{}
 	ret.handlerFactories = make(map[string]HandlerFactory)
+	ret.modifierFactories = make(map[string]ModifierFactory)
 	ret.exported = make(map[string]Handler)
 	ret.elements = make([]*interpolElement, 0)
 
@@ -108,9 +114,46 @@ func (ip *Interpol) Next() bool {
 		}
 		e.Reset()
 	}
-
 	return false
 }
+
+//
+// modifier functions
+//
+
+// AddModifier registers a new modifier
+func (ip *Interpol) AddModifier(typ string, modifier ModifierFactory) error {
+	if _, okay := ip.modifierFactories[typ]; okay {
+		return fmt.Errorf("Modifier '%s' already exists", typ)
+	}
+	ip.modifierFactories[typ] = modifier
+	return nil
+}
+
+func (ip *Interpol) findModifierFactory(name string) ModifierFactory {
+	name = strings.ToLower(name)
+	if def, okay := ip.modifierFactories[name]; okay {
+		return def
+	}
+	return findDefaultModifierFactory(name)
+}
+
+func (ip *Interpol) createModifier(id *InterpolatorData) (Modifier, error) {
+	if id != nil {
+		if name := id.GetString("modifier", ""); name != "" {
+			mf := ip.findModifierFactory(name)
+			if mf == nil {
+				return nil, fmt.Errorf("Unknwon modifier: %s", name)
+			}
+			return mf(ip, id)
+		}
+	}
+	return nil, nil
+}
+
+//
+// handler functions
+//
 
 // AddHandler adds a handler for a specific type of interpolator
 func (ip *Interpol) AddHandler(typ string, creator HandlerFactory) error {
@@ -126,7 +169,6 @@ func (ip *Interpol) findHandlerFactory(name string) HandlerFactory {
 	if def, okay := ip.handlerFactories[name]; okay {
 		return def
 	}
-
 	return findDefaultHandlerFactory(name)
 }
 
@@ -184,12 +226,18 @@ func (ip *Interpol) Add(text string) (*InterpolatedString, error) {
 			return nil, fmt.Errorf("Cannot initialize handler '%s': %v", text, err)
 		}
 
+		modifier, err := ip.createModifier(id)
+		if err != nil {
+			return nil, fmt.Errorf("Cannot create modifier '%s': %v", text, err)
+		}
+
 		err = ip.tryExport(id, handler)
 		if err != nil {
 			return nil, err
 		}
 
-		ret.elements[i] = &interpolElement{handler: handler}
+		ret.elements[i] = &interpolElement{handler: handler, modifier: modifier}
+
 	}
 
 	// add the new handlers to the list of all handlers in this context
