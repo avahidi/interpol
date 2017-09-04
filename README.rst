@@ -46,7 +46,7 @@ But you probably don't need a library to do that so lets try something more
 interesting.
 Assume you suspect user "joe" is using a password that is a combination of
 a weak password plus two additional characters, the first one being a number
-and the second a currency sign. You can now specify your search by doing this::
+and the second a currency sign. You can now narrow your search by doing this::
 
     // again, error checks omitted
     user, err := ip.Add("joe")
@@ -80,7 +80,8 @@ Where
 Furthermore, all interpolators can include the following optional parameters:
 
 - *name* is used to name an element. This is needed if you want to copy it later
-- *modifier* defined an output modifier, such as 'tolower'
+- *modifier* defines an output modifier, such as 'tolower'
+
 
 
 More examples
