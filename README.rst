@@ -15,22 +15,17 @@ This is useful for example for people doing penetration testing or fuzzing.
 Using Interpol
 --------------
 
-Assume you have been given the task of finding employees who use a weak password.
+Assume you have been given the task of finding employees who use weak passwords.
 You are given a file containing all 100 usernames and another file containing
-100 weak passwords. You can instruct Interpol to use these files as input like so::
+100 weak passwords.
 
-    import "bitbucket.org/vahidi/interpol"
 
-    // ...
+You can instruct Interpol to use these files as input like so::
 
+    // note: error handling not shown below
     ip := interpol.New()
-    // error checks not shown below.
     user, err := ip.Add("{{file filename=usernames.txt}}")
     password, err := ip.Add("{{file filename=weakpasswords.txt}}")
-
-This creates two objects representing the user name and password.
-You can now iterate over all possible values::
-
     for {
         if checkCredentials( user.String(), password.String()) {
             report(user.String() )
@@ -40,10 +35,10 @@ You can now iterate over all possible values::
         }
     }
 
-Note that this will result in 100 * 100 = 10.000 username/password pairs.
+Hence interpol will generate all 10.000 valid outputs (username/password pairs)
+given the set of rules (in this case the input files). But you could do all
+this with a simple for-loop so lets try something more interesting.
 
-But you probably don't need a library to do that so lets try something more
-interesting.
 Assume you suspect user "joe" is using a password that is a combination of
 a weak password plus two additional characters, the first one being a number
 and the second a currency sign. You can now narrow your search by doing this::
@@ -53,7 +48,7 @@ and the second a currency sign. You can now narrow your search by doing this::
     password, err := ip.Add("{{file filename=weakpasswords.txt}}{{counter min=0 max=9}}{{set data=$£€}}")
 
 The first string is static, the second one however has 3 interpolated elements.
-This configuration will generate 1 * 100 * 10 * 3 = 3000 pairs.
+This configuration will generate 1 * 100 * 10 * 3 = 3000 username/password pairs.
 
 
 Interpolators
@@ -79,10 +74,17 @@ Where
 
 Furthermore, all interpolators can include the following optional parameters:
 
-- *name* is used to name an element. This is needed if you want to copy it later
-- *modifier* defines an output modifier, such as 'tolower'
+- *name* is used to name an element (used by copy)
+- *modifier* defines an output modifier
 
+Currently the following modifiers exist:
 
+- *toupper*: make all characters upper case
+- *tolower*: make all characters lower case
+- *1337*: leet speak modifier (random upper/lower case)
+
+Note that you can create your own interpolators and modifiers. 
+See the examples for more information.
 
 More examples
 -------------

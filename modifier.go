@@ -1,7 +1,9 @@
 package interpol
 
 import (
+	"math/rand"
 	"strings"
+	"unicode"
 )
 
 // Modifier interface represents any functions that modifies an
@@ -17,6 +19,8 @@ type ModifierFactory func(ctx *Interpol, data *InterpolatorData) (Modifier, erro
 var defaultModifierFactories = map[string]ModifierFactory{
 	"toupper": newToupperModifier,
 	"tolower": newTolowerModifier,
+	"leet":    newLeetModifier,
+	"1337":    newLeetModifier,
 }
 
 func addDefaultModifierFactories(name string, factory ModifierFactory) {
@@ -52,4 +56,24 @@ func (t *tolowerModifier) Modify(str string) string { return strings.ToLower(str
 
 func newTolowerModifier(ctx *Interpol, data *InterpolatorData) (Modifier, error) {
 	return &tolowerModifier{}, nil
+}
+
+//
+// leet speak
+//
+
+type leetModifier struct{}
+
+func (t *leetModifier) Modify(str string) string {
+	return strings.Map(func(c rune) rune {
+		if (rand.Int() & 1) == 0 {
+			return unicode.ToUpper(c)
+		} else {
+			return unicode.ToLower(c)
+		}
+	}, str)
+}
+
+func newLeetModifier(ctx *Interpol, data *InterpolatorData) (Modifier, error) {
+	return &leetModifier{}, nil
 }
