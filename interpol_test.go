@@ -43,7 +43,7 @@ func TestAddHandler(t *testing.T) {
 	ip := New()
 	err := ip.AddHandler("monkey", NilCreator)
 	if err != nil {
-		t.Errorf("could nto add dummy handler, %v", err)
+		t.Errorf("could not add dummy handler, %v", err)
 	}
 
 	err = ip.AddHandler("monkey", NilCreator)

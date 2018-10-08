@@ -143,7 +143,7 @@ func (ip *Interpol) createModifier(id *InterpolatorData) (Modifier, error) {
 		if name := id.GetString("modifier", ""); name != "" {
 			mf := ip.findModifierFactory(name)
 			if mf == nil {
-				return nil, fmt.Errorf("Unknwon modifier: %s", name)
+				return nil, fmt.Errorf("Unknown modifier: %s", name)
 			}
 			return mf(ip, id)
 		}

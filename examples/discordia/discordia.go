@@ -6,14 +6,15 @@
 package main
 
 import (
-	"bitbucket.org/vahidi/interpol"
 	"fmt"
 	"log"
 	"math/rand"
+
+	"bitbucket.org/vahidi/interpol"
 )
 
 // input data stolen from wikipedia:
-const input = "Flower,power,was,a,slogan,used,during,the,late,1960s,and,early,1970s,as,a,symbol,of,passive,resistance,and,non-violence,ideology."
+const input = "Flower power was a slogan used during the late 1960s and early 1970s as a symbol of passive resistance and non-violence ideology."
 
 // this is the internal structure for the modifier
 type discordiaModifier struct {
@@ -45,7 +46,7 @@ func main() {
 	ip.AddModifier("discordia", newDiscordiaModifier)
 
 	// with the discordia in place, we can use it in an interpolation
-	cmd := fmt.Sprintf("{{set sep=',' data='%s' modifier=discordia modifier-text=fnord modifier-rate=23}}", input)
+	cmd := fmt.Sprintf("{{set sep=' ' data='%s' modifier=discordia modifier-text=fnord modifier-rate=23}}", input)
 	str, err := ip.Add(cmd)
 	if err != nil {
 		log.Fatalf("Something bad hapened: %v", err)

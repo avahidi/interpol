@@ -10,7 +10,7 @@ build:
 	go build
 
 test: build
-	go test -v
+	go test ./...
 
 examples: build
 	for e in $(EXAMPLES) ; do (cd examples/$$e && echo $$e: && go run *.go ) ; done
@@ -22,3 +22,11 @@ clean:
 fmt:
 	go fmt
 	for e in $(EXAMPLES) ; do (cd examples/$$e && go fmt ); done
+
+.PHONY: report
+report:
+	-go get -u github.com/client9/misspell/cmd/misspell
+	-go get -u github.com/fzipp/gocyclo
+	-misspell *.go lib
+	-gocyclo -top 15 -avg .
+	-go tool vet .

@@ -1,126 +1,138 @@
 package interpol
 
 import (
-	"bytes"
 	"fmt"
 	"strings"
+	"unicode/utf8"
 )
+
+type scantype int
+
+const (
+	EOF scantype = iota
+	Text
+	Operator
+	Error
+)
+
+type scanner struct {
+	input string
+	curr  int
+}
+
+func (l *scanner) next() (string, scantype) {
+	//
+	for l.curr < len(l.input) {
+		rune, width := utf8.DecodeRuneInString(l.input[l.curr:])
+		if rune != ' ' && rune != '\t' && rune != ',' {
+			break
+		}
+		l.curr += width
+	}
+
+	start, qoute, meta := l.curr, false, false
+	for l.curr < len(l.input) {
+		rune, width := utf8.DecodeRuneInString(l.input[l.curr:])
+		if meta {
+			meta = false
+		} else if qoute {
+			if rune == '\'' || rune == '"' {
+				qoute = false
+			}
+		} else {
+			if rune == '\\' {
+				meta = true
+			} else if rune == '\'' || rune == '"' {
+				qoute = true
+			} else if rune == ' ' || rune == '\t' || rune == ',' || (rune == '=' && l.curr != start) {
+				break
+			} else if rune == '=' {
+				l.curr += width
+				break
+			}
+		}
+		l.curr += width
+	}
+
+	str := l.input[start:l.curr]
+	// fmt.Printf("START: %d, curr=%d str='%s'\n", start, l.curr, str)
+	if start == l.curr {
+		return "", EOF
+	}
+
+	// unexpected end
+	if qoute || meta {
+		return "", Error
+	}
+
+	if str == "=" {
+		return str, Operator
+	}
+
+	// remove qoute marks if any
+	if len(str) > 2 && ((strings.HasPrefix(str, "'") && strings.HasSuffix(str, "'")) ||
+		(strings.HasPrefix(str, "\"") && strings.HasSuffix(str, "\""))) {
+		str = str[1 : len(str)-1]
+	}
+	return str, Text
+
+}
+
+func newScanner(str string) *scanner {
+	return &scanner{input: str}
+}
+
+// parseInterpolator parses the interpolator textElements.
+// It is basically a betterversion of strings.Split() that handles ' and " and \
+func parseInterpolator(text string) (*InterpolatorData, error) {
+	ret := &InterpolatorData{
+		Properties: make(map[string]string),
+	}
+
+	s := newScanner(text)
+
+	state := 0
+	varname := ""
+	for {
+
+		str, typ := s.next()
+		if typ == EOF {
+			if state != 1 {
+				return nil, fmt.Errorf("Unexpected end in '%s'", text)
+			}
+			break
+		}
+
+		switch state {
+		case 0:
+			if typ != Text {
+				return nil, fmt.Errorf("Expected type, got %s", str)
+			}
+			ret.Type = str
+			state = 1
+		case 1:
+			if typ == Operator {
+				state = 2
+			} else {
+				varname = str
+				ret.Properties[str] = ""
+			}
+		case 2:
+			if varname == "" {
+				return nil, fmt.Errorf("Unexpected '=' in '%s'", text)
+			}
+			ret.Properties[varname] = str
+			varname = ""
+			state = 1
+		}
+	}
+	return ret, nil
+}
 
 // textElement represents a sub-string that is either static or an interpolator
 type textElement struct {
 	static bool
 	text   string
-}
-
-// remove spaces when the command looks like this
-// cmd prop = value
-// cmd prop1 prop2 = value
-// cmd prop1 prop2 =value
-func removeSpacesInCommand(list []string) []string {
-	ret := make([]string, 0)
-	ret = append(ret, list[0])
-
-	for i, last := 1, len(list)-1; i <= last; i++ {
-		out := list[i]
-		if strings.Index(list[i], "=") == -1 && i < last {
-			if next := strings.Trim(list[i+1], " \t"); next[0] == '=' {
-				out = out + next
-				i++
-				if next == "=" && i < last && strings.Index(list[i+1], "=") == -1 {
-					out = out + strings.Trim(list[i+1], " \t")
-					i++
-				}
-			}
-
-		}
-		ret = append(ret, out)
-	}
-
-	return ret
-}
-
-// ParseInterpolator parses the interpolator textElements.
-// It is basically a betterversion of strings.Split() that handles ' and " and \
-func parseInterpolator(text string) (*InterpolatorData, error) {
-	const (
-		normal = iota
-		waitMeta
-		waitSingle
-		waitDouble
-	)
-	b := bytes.NewBuffer(nil)
-	state := normal
-	list := make([]string, 0)
-
-	for _, r := range text {
-		switch state {
-		case normal:
-			switch r {
-			case '\'':
-				state = waitSingle
-			case '"':
-				state = waitDouble
-			case '\\':
-				state = waitMeta
-			case ' ', ',':
-				if b.Len() > 0 {
-					list = append(list, b.String())
-					b.Reset()
-				}
-			default:
-				if b.Len() > 0 || (r != ' ' && r != '\t') {
-					b.WriteRune(r)
-				}
-			}
-		case waitSingle:
-			if r == '\'' {
-				state = normal
-			} else {
-				b.WriteRune(r)
-			}
-		case waitDouble:
-			if r == '"' {
-				state = normal
-			} else {
-				b.WriteRune(r)
-			}
-		case waitMeta:
-			if r != '\\' {
-				b.WriteRune(r)
-			}
-			state = normal
-
-		}
-	}
-
-	if b.Len() > 0 {
-		list = append(list, b.String())
-	}
-
-	if len(list) == 0 {
-		return nil, fmt.Errorf("interpolator contains no data")
-	}
-
-	if strings.Index(list[0], "=") != -1 {
-		return nil, fmt.Errorf("type invalid: %s", text)
-	}
-
-	list = removeSpacesInCommand(list)
-
-	i := &InterpolatorData{Type: list[0], Properties: make(map[string]string)}
-	for _, p := range list[1:] {
-		p0 := strings.Trim(p, " \t")
-		m := strings.Index(p0, "=")
-		if m == -1 {
-			i.Properties[p0] = ""
-		} else {
-			pl := strings.Trim(p0[:m], " \t")
-			pr := strings.Trim(p0[m+1:], " \t")
-			i.Properties[pl] = pr
-		}
-	}
-
-	return i, nil
 }
 
 // ParseLine divides a line into a number of textElements that

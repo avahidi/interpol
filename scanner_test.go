@@ -4,6 +4,46 @@ import (
 	"testing"
 )
 
+// test internal scanner
+func TestScanner(t *testing.T) {
+	var testdata = []struct {
+		input  string
+		output []string
+	}{
+		{"", []string{}},
+		{"one", []string{"one"}},
+		{"one two", []string{"one", "two"}},
+		{"  spacey two", []string{"spacey", "two"}},
+		{"with ' some qoutes '", []string{"with", " some qoutes "}},
+		{"var=123", []string{"var", "=", "123"}},
+		{"var='=123'", []string{"var", "=", "=123"}},
+		{"var\\==123", []string{"var\\=", "=", "123"}},
+	}
+
+	for _, test := range testdata {
+		s := newScanner(test.input)
+		for _, str := range test.output {
+			str2, typ := s.next()
+			if typ == EOF {
+				t.Errorf("Unexpected EOF in '%s'", test.input)
+				break
+			}
+			if typ == Error {
+				t.Errorf("Unexpected Error in '%s'", test.input)
+				break
+			}
+			if str != str2 {
+				t.Errorf("Expected '%s' got '%s'", str, str2)
+			}
+		}
+
+		str, typ := s.next()
+		if typ != EOF {
+			t.Errorf("Expected EOF, got '%s':%d in '%s'", str, typ, test.input)
+		}
+	}
+}
+
 type interpolParserTestdata struct {
 	log  string
 	cmd  string
@@ -18,7 +58,10 @@ type lineParserTestdata struct {
 }
 
 var interpolTestdata = []interpolParserTestdata{
+	{"keep space 1", "spacetype datax=' '", "spacetype",
+		map[string]string{"datax": " "}},
 	{"nodata", "justtype", "justtype", map[string]string{}},
+
 	{"withdata", "type1 data1 data2=value2", "type1",
 		map[string]string{"data1": "", "data2": "value2"}},
 	{"remove space 1", "spacetype datax  = valuex ", "spacetype",
@@ -28,10 +71,6 @@ var interpolTestdata = []interpolParserTestdata{
 	{"remove space 3", "spacetype nodata datax =valuex ", "spacetype",
 		map[string]string{"nodata": "", "datax": "valuex"}},
 	{"remove space 4", "spacetype nodata1 nodata2", "spacetype",
-		map[string]string{"nodata1": "", "nodata2": ""}},
-	{"remove space 5", "spacetype nodata1 nodata2 =", "spacetype",
-		map[string]string{"nodata1": "", "nodata2": ""}},
-	{"remove space 6", "spacetype nodata1 nodata2=", "spacetype",
 		map[string]string{"nodata1": "", "nodata2": ""}},
 }
 
@@ -54,7 +93,7 @@ func TestParseInterpol(t *testing.T) {
 			t.Errorf("%s: failed to parse, %v", test.log, err)
 		} else {
 			if id.Type != test.typ {
-				t.Errorf("%s: expected type %s got %s", test.log, test.typ, id.Type)
+				t.Errorf("%s: expected type '%s' got '%s'", test.log, test.typ, id.Type)
 			}
 			if len(id.Properties) != len(test.data) {
 				t.Errorf("%s: expected %d properties, got %d",
@@ -62,7 +101,7 @@ func TestParseInterpol(t *testing.T) {
 			} else {
 				for k, v := range test.data {
 					if id.Properties[k] != v {
-						t.Errorf("%s: expected %s=%s, got %s",
+						t.Errorf("%s: expected %s='%s', got '%s'",
 							test.log, k, v, id.Properties[k])
 					}
 				}
