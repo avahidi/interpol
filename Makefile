@@ -20,8 +20,7 @@ clean:
 	for e in $(EXAMPLES) ; do (cd examples/$$e && go clean ) ; done
 
 fmt:
-	go fmt
-	for e in $(EXAMPLES) ; do (cd examples/$$e && go fmt ); done
+	go fmt ./...
 
 .PHONY: report
 report:
