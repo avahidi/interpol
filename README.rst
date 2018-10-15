@@ -23,7 +23,7 @@ You do however remember that the password had the following format::
 
     <one of the Friend characters> <a digit> <a currency sign>
 
-Assuming the file 'friends.txt' contains name of all friends character, we can generate all possible combination using three interpolators::
+Assuming the file 'friends.txt' contains name of all friends characters, we can generate all possible combination using three interpolators::
 
     $ police "{{file filename='friends.txt'}}{{counter min=0 max=9}}{{set data='£$¥€'}}"
 
