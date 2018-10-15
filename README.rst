@@ -21,11 +21,11 @@ Usage
 Consider the following example: You have forgotten your password for the company mainframe.
 You do however remember that the password had the following format::
 
-    <one of the Friend character> <a digit> <a currency sign>
+    <one of the Friend characters> <a digit> <a currency sign>
 
 Assuming the file 'friends.txt' contains name of all friends character, we can generate all possible combination using three interpolators::
 
-    $ cmd/police/police "{{file filename='friends.txt'}}{{counter min=0 max=9}}{{set data='£$¥€'}}"
+    $ police "{{file filename='friends.txt'}}{{counter min=0 max=9}}{{set data='£$¥€'}}"
 
     Rachel0£
     Monica0£
@@ -36,18 +36,9 @@ Assuming the file 'friends.txt' contains name of all friends character, we can g
     Gunther9€
 
 Use these candidates with a password recovery tool to find your lost password in no time.
-There are of course other tools for this particular examples, but I believe few have the flexibility of Interpol/Police.
+There are of course other tools for this particular usecase, but I believe few have the flexibility of Interpol/Police.
 
-See examples/hackernews for a similar example that involves networking.
-
-
-The library
------------
-
-You can use the library in your own application. This also allows you to define
-custom interpolators and modifiers.
-
-See the examples examples/hodor and examples/discordia for more information.
+See examples/hackernews for a similar example with some networking.
 
 
 Interpolators
@@ -80,6 +71,7 @@ Currently the following modifiers exist:
 
 - *toupper*: make all characters upper case
 - *tolower*: make all characters lower case
+- *capitalize*: capitalize each word
 - *1337*: leet speak modifier (random upper/lower case)
 
 
@@ -92,6 +84,14 @@ The folder examples/ contains the following samples:
 - **nena** - demonstrates use of copy
 - **hodor** - as the name clearly implies this one teaches you to create custom interpolators
 - **discordia** - demonstrates use of custom modifiers
+
+
+Building
+--------
+
+To build Police from source, install the Go compiler and execute this::
+
+    $ go get -u bitbucket.org/vahidi/interpol/cmd/police/...
 
 License
 -------

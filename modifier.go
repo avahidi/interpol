@@ -17,10 +17,11 @@ type ModifierFactory func(ctx *Interpol, data *InterpolatorData) (Modifier, erro
 
 //
 var defaultModifierFactories = map[string]ModifierFactory{
-	"toupper": newToupperModifier,
-	"tolower": newTolowerModifier,
-	"leet":    newLeetModifier,
-	"1337":    newLeetModifier,
+	"toupper":    newToupperModifier,
+	"tolower":    newTolowerModifier,
+	"capitalize": newCapitalizeModifier,
+	"leet":       newLeetModifier,
+	"1337":       newLeetModifier,
 }
 
 func addDefaultModifierFactories(name string, factory ModifierFactory) {
@@ -56,6 +57,20 @@ func (t *tolowerModifier) Modify(str string) string { return strings.ToLower(str
 
 func newTolowerModifier(ctx *Interpol, data *InterpolatorData) (Modifier, error) {
 	return &tolowerModifier{}, nil
+}
+
+//
+// to lower
+//
+
+type capitalizeModifier struct{}
+
+func (c *capitalizeModifier) Modify(str string) string {
+	return strings.Title(strings.ToLower(str))
+}
+
+func newCapitalizeModifier(ctx *Interpol, data *InterpolatorData) (Modifier, error) {
+	return &capitalizeModifier{}, nil
 }
 
 //

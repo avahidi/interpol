@@ -19,6 +19,7 @@ var modifierTestData = []modifierTestDataFormat{
 	{"tolower", "Anders Jonas Ångström", "anders jonas ångström"},
 	{"toupper", "Per Martin-Löf", "PER MARTIN-LÖF"},
 	{"toupper", "Lars Bergström", "LARS BERGSTRÖM"},
+	{"capitalize", "gordon GEKKO", "Gordon Gekko"},
 }
 
 func TestSimpleModifier(t *testing.T) {
