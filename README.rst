@@ -6,53 +6,52 @@
 Interpol
 ========
 
-Interpol is a minimal `string interpolation <https://en.wikipedia.org/wiki/String_interpolation>`_
-library written in golang.
-It can be used to generate a series of strings from a set of rules.
+**Interpol** is a minimal `string interpolation <https://en.wikipedia.org/wiki/String_interpolation>`_
+library written in golang. It can be used to generate a series of strings from a set of rules.
 This is useful for example for people doing penetration testing or fuzzing.
 
 
-Using Interpol
---------------
+**Police** is the Interpol command line interface. It is not as powerful as embedding Interpol in your
+own application (which gives you custom interpolators and modifiers) but still very handy if you are a
+CLI type of person.
 
-Assume you have been given the task of finding employees who use weak passwords.
-You are given a file containing all 100 usernames and another file containing
-100 weak passwords.
+Usage
+-----
+
+Consider the following example: You have forgotten your password for the company mainframe.
+You do however remember that the password had the following format::
+
+    <one of the Friend character> <a digit> <a currency sign>
+
+Assuming the file 'friends.txt' contains name of all friends character, we can generate all possible combination using three interpolators::
+
+    $ cmd/police/police "{{file filename='friends.txt'}}{{counter min=0 max=9}}{{set data='£$¥€'}}"
+
+    Rachel0£
+    Monica0£
+    Phoebe0£
+    . . .
+    Joey9€
+    Chandler9€
+    Gunther9€
+
+Use these candidates with a password recovery tool to find your lost password in no time.
+There are of course other tools for this particular examples, but I believe few have the flexibility of Interpol/Police.
+
+See examples/hackernews for a similar example that involves networking.
 
 
-You can instruct Interpol to use these files as input like so::
+The library
+-----------
 
-    // note: error handling not shown below
-    ip := interpol.New()
-    user, err := ip.Add("{{file filename=usernames.txt}}")
-    password, err := ip.Add("{{file filename=weakpasswords.txt}}")
-    for {
-        if checkCredentials( user.String(), password.String()) {
-            report(user.String() )
-        }
-        if ! ip.Next() {
-            break
-        }
-    }
+You can use the library in your own application. This also allows you to define
+custom interpolators and modifiers.
 
-Hence interpol will generate all 10.000 valid outputs (username/password pairs)
-given the set of rules (in this case the input files). But you could do all
-this with a simple for-loop so lets try something more interesting.
-
-Assume you suspect user "joe" is using a password that is a combination of
-a weak password plus two additional characters, the first one being a number
-and the second a currency sign. You can now narrow your search by doing this::
-
-    // again, error checks omitted
-    user, err := ip.Add("joe")
-    password, err := ip.Add("{{file filename=weakpasswords.txt}}{{counter min=0 max=9}}{{set data=$£€}}")
-
-The first string is static, the second one however has 3 interpolated elements.
-This configuration will generate 1 * 100 * 10 * 3 = 3000 username/password pairs.
+See the examples examples/hodor and examples/discordia for more information.
 
 
 Interpolators
--------------
+=============
 
 An interpolation has the following format::
 
@@ -66,10 +65,10 @@ With the following types and parameters currently implemented:
 - **set**: data, sep, count, mode
 - **copy**: from
 
-Where 
+Where
 
 - *mode* is any of linear, random or perm
-- *format* is standard printf format string (e.g. "0x%08X")
+- *format* is standard Go Printf format string (e.g. "0x%08X")
 - *copy* repeats the value of another interpolator. target must have a name
 
 Furthermore, all interpolators can include the following optional parameters:
@@ -83,21 +82,16 @@ Currently the following modifiers exist:
 - *tolower*: make all characters lower case
 - *1337*: leet speak modifier (random upper/lower case)
 
-Note that you can create your own interpolators and modifiers. 
-See the examples for more information.
 
-More examples
--------------
+Examples
+========
 
 The folder examples/ contains the following samples:
 
-- **rng** - generate pseudo-random between 0000 and 9999
 - **hackernews** - download 3 random HN comments from firebase
-- **password** - variation of the example shown above
 - **nena** - demonstrates use of copy
 - **hodor** - as the name clearly implies this one teaches you to create custom interpolators
 - **discordia** - demonstrates use of custom modifiers
-- **pocli** - interpol command line tool
 
 License
 -------

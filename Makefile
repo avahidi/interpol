@@ -1,6 +1,6 @@
 
 
-EXAMPLES=rng password hackernews nena hodor pocli discordia
+EXAMPLES=hackernews nena hodor discordia
 
 .PHONY: build test examples clean fmt
 
@@ -8,9 +8,12 @@ all: build test
 
 build:
 	go build
+	cd cmd/police && go build
+	# go build ./cmd/...
 
 test: build
 	go test ./...
+
 
 examples: build
 	for e in $(EXAMPLES) ; do (cd examples/$$e && echo $$e: && go run *.go ) ; done

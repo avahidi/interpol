@@ -19,20 +19,20 @@ type randomTestdata struct {
 }
 
 var linearFileTestdata = []testdataSingle{
-	{"file all-linear", "{{file, filename=testdata1.txt mode=linear count=0}}", file1},
-	{"file some-linear", "{{file, filename=testdata1.txt mode=linear count=2}}", file1[:2]},
-	{"file more-linear", "{{file, filename=testdata1.txt mode=linear count=5}}",
+	{"file all-linear", "{{file, filename=testdata/data1.txt mode=linear count=0}}", file1},
+	{"file some-linear", "{{file, filename=testdata/data1.txt mode=linear count=2}}", file1[:2]},
+	{"file more-linear", "{{file, filename=testdata/data1.txt mode=linear count=5}}",
 		append(file1, file1[0], file1[1])},
 }
 
 var randomFileTests = []randomTestdata{
-	{"file perm-all", "{{file, filename=testdata1.txt mode=perm count=0}}", 1, 1, 3, file1},
-	{"file perm-some", "{{file, filename=testdata1.txt mode=perm count=2}}", 1, 1, 2, file1},
-	{"file perm-many", "{{file, filename=testdata1.txt mode=perm count=5}}", 1, 2, 5, file1},
+	{"file perm-all", "{{file, filename=testdata/data1.txt mode=perm count=0}}", 1, 1, 3, file1},
+	{"file perm-some", "{{file, filename=testdata/data1.txt mode=perm count=2}}", 1, 1, 2, file1},
+	{"file perm-many", "{{file, filename=testdata/data1.txt mode=perm count=5}}", 1, 2, 5, file1},
 
-	{"file rand-all", "{{file, filename=testdata2.txt mode=rand count=0}}", 0, 3, 3, file2},
-	{"file rand-all", "{{file, filename=testdata2.txt mode=rand count=2}}", 0, 2, 2, file2},
-	{"file rand-all", "{{file, filename=testdata2.txt mode=rand count=6}}", 0, 6, 6, file2},
+	{"file rand-all", "{{file, filename=testdata/data2.txt mode=rand count=0}}", 0, 3, 3, file2},
+	{"file rand-all", "{{file, filename=testdata/data2.txt mode=rand count=2}}", 0, 2, 2, file2},
+	{"file rand-all", "{{file, filename=testdata/data2.txt mode=rand count=6}}", 0, 6, 6, file2},
 }
 
 var linearSetTestdata = []testdataSingle{
@@ -83,7 +83,7 @@ func TestFileRandom(t *testing.T) {
 
 func TestFilePermRepeat(t *testing.T) {
 	for n := 0; n < 100; n++ {
-		strs, err := helperInterpolateAll("{{file, filename=testdata1.txt mode=perm count=20}}")
+		strs, err := helperInterpolateAll("{{file, filename=testdata/data1.txt mode=perm count=20}}")
 		if err != nil {
 			t.Fatalf("Unexpected error: %v", err)
 		}
@@ -98,7 +98,7 @@ func TestFilePermRepeat(t *testing.T) {
 
 // permutation is not linear
 func TestFilePerm(t *testing.T) {
-	testPermutationRepeat(t, "file perm wrap", "{{file, filename=testdata1.txt mode=perm count=20}}", 100, len(file1))
+	testPermutationRepeat(t, "file perm wrap", "{{file, filename=testdata/data1.txt mode=perm count=20}}", 100, len(file1))
 }
 
 // set
