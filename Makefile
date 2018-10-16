@@ -21,6 +21,14 @@ examples: build
 clean:
 	go clean
 	for e in $(EXAMPLES) ; do (cd examples/$$e && go clean ) ; done
+	rm -rf parts prime stage snap police_*.snap
+
+
+
+.PHONY: snap
+snap:
+	snapcraft clean
+	snapcraft -d
 
 fmt:
 	go fmt ./...

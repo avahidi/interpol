@@ -4,7 +4,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"log"
 	"os"
 	"strings"
 
@@ -26,11 +25,19 @@ func init() {
 		flag.PrintDefaults()
 	}
 }
+func fail(code int, format string, a ...interface{}) {
+	msg := fmt.Sprintf(format, a...)
+
+	fmt.Fprintf(os.Stderr, msg)
+	fmt.Fprintf(os.Stderr, "\n")
+	os.Exit(code)
+}
 func main() {
 	flag.Parse()
 	if flag.NArg() == 0 {
 		flag.Usage()
-		log.Fatal("No commands were given")
+		fail(20, "ERROR: no commands were given")
+
 	}
 
 	sep := unscape(*sep)
@@ -38,7 +45,7 @@ func main() {
 	ip := interpol.New()
 	strs, err := ip.AddMultiple(flag.Args()...)
 	if err != nil {
-		log.Fatalf("Officer down: %v\n", err)
+		fail(20, "ERROR: '%v'", err)
 	}
 
 	for {
