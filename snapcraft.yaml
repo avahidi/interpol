@@ -1,4 +1,5 @@
 name: police
+version-script: cmd/police/police -version
 version: git
 summary: Police is a rule-based string interpolation utility.
 description: |
@@ -6,7 +7,7 @@ description: |
   library. It can be used to generate lists of entries based on a set of
   rules, for example for use in penetration testing or fuzzing.
 
-grade: devel
+grade: stable
 confinement: strict
 
 parts:

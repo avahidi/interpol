@@ -10,7 +10,9 @@ import (
 	"bitbucket.org/vahidi/interpol"
 )
 
-var sep = flag.String("sep", " ", "Separator")
+var sep = flag.String("sep", " ", "Column separator")
+var lsep = flag.String("lsep", "\n", "Line separator")
+var version = flag.Bool("version", false, "Show version information")
 
 func unscape(s string) string {
 	s = strings.Replace(s, "\\n", "\n", -1)
@@ -34,13 +36,27 @@ func fail(code int, format string, a ...interface{}) {
 }
 func main() {
 	flag.Parse()
+	// Go flag doesn't go past first "-"
+	for _, str := range flag.Args() {
+		if str[0] == '-' {
+			flag.Usage()
+			fail(20, "ERROR: options should be given before commands")
+		}
+	}
+
+	if *version {
+		fmt.Printf("%d.%d.%d\n", interpol.Version[0], interpol.Version[1],
+			interpol.Version[2])
+		os.Exit(0)
+	}
 	if flag.NArg() == 0 {
 		flag.Usage()
 		fail(20, "ERROR: no commands were given")
-
 	}
 
+	// separator strings can contain escaped characters
 	sep := unscape(*sep)
+	lsep := unscape(*lsep)
 
 	ip := interpol.New()
 	strs, err := ip.AddMultiple(flag.Args()...)
@@ -49,10 +65,13 @@ func main() {
 	}
 
 	for {
-		for _, s := range strs {
-			fmt.Printf("%s%s", s.String(), sep)
+		for i, s := range strs {
+			if i != 0 {
+				fmt.Print(sep)
+			}
+			fmt.Print(s.String())
 		}
-		fmt.Println()
+		fmt.Print(lsep)
 
 		if !ip.Next() {
 			break

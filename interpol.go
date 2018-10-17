@@ -7,6 +7,9 @@ import (
 	"strings"
 )
 
+// Version is library version number
+var Version = []int{0, 0, 1}
+
 // interpolElement is part of an interpolated string
 type interpolElement struct {
 	handler  Handler
