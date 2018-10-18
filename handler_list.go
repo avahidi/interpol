@@ -107,7 +107,7 @@ func newListHandler(items []string, data *InterpolatorData) (Handler, error) {
 
 	// max items and output count
 	if ret.max == 0 {
-		return nil, fmt.Errorf("Empty file")
+		return nil, fmt.Errorf("Empty file or data set")
 	}
 
 	// user didn't specify count...

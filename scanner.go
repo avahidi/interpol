@@ -70,7 +70,7 @@ func (l *scanner) next() (string, scantype) {
 	}
 
 	// remove qoute marks if any
-	if len(str) > 2 && ((strings.HasPrefix(str, "'") && strings.HasSuffix(str, "'")) ||
+	if len(str) > 1 && ((strings.HasPrefix(str, "'") && strings.HasSuffix(str, "'")) ||
 		(strings.HasPrefix(str, "\"") && strings.HasSuffix(str, "\""))) {
 		str = str[1 : len(str)-1]
 	}
