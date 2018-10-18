@@ -1,5 +1,5 @@
 name: police
-version-script: cmd/police/police -version
+# version-script: cmd/police/police -version
 version: git
 summary: Police is a rule-based string interpolation utility.
 description: |

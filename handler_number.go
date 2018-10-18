@@ -7,16 +7,26 @@ import (
 
 // counter handler is a up/down counter
 type counterHandler struct {
-	min, max, step int
-	curr           int
-	format         string
+	start, end, step int
+	curr             int
+	format           string
 }
 
 func newCounterHandler(ctx *Interpol, text string, data *InterpolatorData) (Handler, error) {
+	start := data.GetInteger("min", 0)
+	end := data.GetInteger("max", 10)
+	step := data.GetInteger("step", 1)
+	if step == 0 {
+		return nil, fmt.Errorf("counter step is zero")
+	}
+	if (step > 0 && start > end) || (step < 0 && start < end) {
+		start, end = end, start
+	}
+
 	ret := &counterHandler{
-		min:    data.GetInteger("min", 0),
-		max:    data.GetInteger("max", 10),
-		step:   data.GetInteger("step", 1),
+		start:  start,
+		end:    end,
+		step:   step,
 		format: data.GetString("format", "%d"),
 	}
 	ret.Reset()
@@ -24,7 +34,7 @@ func newCounterHandler(ctx *Interpol, text string, data *InterpolatorData) (Hand
 }
 
 func (ch *counterHandler) done() bool {
-	return (ch.step > 0 && ch.curr > ch.max) || (ch.step < 0 && ch.curr < ch.max)
+	return (ch.step > 0 && ch.curr > ch.end) || (ch.step < 0 && ch.curr < ch.end)
 }
 
 func (ch *counterHandler) String() string {
@@ -38,7 +48,7 @@ func (ch *counterHandler) Next() bool {
 }
 
 func (ch *counterHandler) Reset() {
-	ch.curr = ch.min
+	ch.curr = ch.start
 }
 
 // random handler generates random in some interval
