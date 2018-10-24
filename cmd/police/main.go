@@ -28,16 +28,13 @@ func init() {
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage: %s [options] <commands>  \n", os.Args[0])
 		flag.PrintDefaults()
-		fmt.Fprintf(os.Stderr, "Example:\n"+
+		fmt.Fprintf(os.Stderr, "\nExample:\n"+
 			"\tpolice -sep \", \" \"Hello\" \"{{set sep=' ' data='Kitty World Dolly goodbye'}}!\"\n"+
 			"\tpolice -lsep \":\" \"{{random min=0 max=255 count=8 format=%%02x}}\"\n")
 	}
 }
 func fail(code int, format string, a ...interface{}) {
-	msg := fmt.Sprintf(format, a...)
-
-	fmt.Fprintf(os.Stderr, msg)
-	fmt.Fprintf(os.Stderr, "\n")
+	fmt.Fprintf(os.Stderr, "\n"+format+"\n", a...)
 	os.Exit(code)
 }
 func main() {
