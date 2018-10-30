@@ -23,12 +23,22 @@ clean:
 	for e in $(EXAMPLES) ; do (cd examples/$$e && go clean ) ; done
 	rm -rf parts prime stage snap police_*.snap
 
-
-
+SNAPTARGETS = amd64 arm64 armhf # ppc64 i686
 .PHONY: snap
 snap:
-	snapcraft clean
-	snapcraft -d
+	make clean
+	for t in $(SNAPTARGETS) ; do set -e ; snapcraft clean ; snapcraft  --debug --target-arch $$t ; done
+	snapcraft login
+	for s in $$(ls *.snap) ; do set -e ; snapcraft push  --release edge,beta  $$s ; done
+	snapcraft logout
+
+snap-setup:
+	# i386
+	# sudo apt install -y gcc-i686-linux-gnu
+	# armhf
+	sudo apt install -y binutils-arm-linux-gnueabihf cpp-7-arm-linux-gnueabihf cpp-arm-linux-gnueabihf gcc-7-arm-linux-gnueabihf gcc-7-arm-linux-gnueabihf-base gcc-arm-linux-gnueabihf libasan4-armhf-cross libatomic1-armhf-cross libc6-armhf-cross libc6-dev-armhf-cross libcilkrts5-armhf-cross libgcc-7-dev-armhf-cross libgcc1-armhf-cross libgomp1-armhf-cross libstdc++6-armhf-cross libubsan0-armhf-cross linux-libc-dev-armhf-cross
+	# arm64
+	# ??
 
 fmt:
 	go fmt ./...
