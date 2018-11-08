@@ -15,8 +15,18 @@ This is useful for example for people doing penetration testing or fuzzing.
 own application (which gives you custom interpolators and modifiers) but still very handy if you are a
 CLI type of person.
 
-Usage
------
+
+You can install Police from the `Snap store <https://snapcraft.io/police>`_ ::
+
+    $ sudo snap install police
+
+To build Police from source, install the Go compiler then execute this::
+
+    $ go get -u bitbucket.org/vahidi/interpol/cmd/police/...
+
+
+Usage example
+-------------
 
 Consider the following example: You have forgotten your password for the company mainframe.
 You do however remember that the password had the following format::
@@ -75,6 +85,7 @@ Currently the following modifiers exist:
 - *1337*: leet speak modifier (random upper/lower case)
 
 
+
 Examples
 ========
 
@@ -86,18 +97,10 @@ The folder examples/ contains the following samples:
 - **discordia** - demonstrates use of custom modifiers
 
 
-Building
---------
-
-To build Police from source, install the Go compiler and execute this::
-
-    $ go get -u bitbucket.org/vahidi/interpol/cmd/police/...
-
 License
 -------
 
 This library is licensed under the GNU GENERAL PUBLIC LICENSE, version 2 (GPLv2).
 
-See the file LICENSE for more information
-
+See the file LICENSE for more information.
 
