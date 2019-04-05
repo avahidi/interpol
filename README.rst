@@ -11,7 +11,7 @@ library written in Go. It can be used to generate a series of strings from a set
 This is useful for example for people doing penetration testing or fuzzing.
 
 
-**Police** is a command line interface for Interpol. It is not as powerful as embedding Interpol in your
+**Police** is a command-line interface for Interpol. It is not as powerful as embedding Interpol in your
 own application (which allows you to create custom interpolators and modifiers) but still very handy if you are a
 CLI type of person.
 
@@ -60,7 +60,7 @@ For example::
 
     {{counter min=1 max=10 step=3}}
 
-The following ones are currently implemented::
+The following interpolators are currently available::
 
     {{counter [min=0] [max=10] [step=1] [format="%d] }}
     {{random [min=0] [max=100] [count=5] [format="%d"] }}
@@ -71,7 +71,7 @@ The following ones are currently implemented::
 Where
 
 - [parameter=value] indicates an optional parameter, value is the default value
-- valid values for mode* are: linear, random or perm
+- valid values for mode are: linear, random or perm
 - format is standard Go fmt.Printf() format string
 - copy repeats the value of another interpolator
 
@@ -79,7 +79,7 @@ Where
 Copying
 ~~~~~~~
 
-All interpolators may have be given a name. This is needed when using copy::
+Interpolators may be given a name. This is needed when using copy::
 
     {{counter name=mycounter}} {{copy from=mycounter}}
 
