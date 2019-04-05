@@ -2,8 +2,10 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
+	"io"
 	"math/rand"
 	"os"
 	"strings"
@@ -12,6 +14,7 @@ import (
 	"bitbucket.org/vahidi/interpol"
 )
 
+var file = flag.String("f", "", "Read commands from this file")
 var sep = flag.String("sep", " ", "Column separator")
 var lsep = flag.String("lsep", "\n", "Line separator")
 var version = flag.Bool("version", false, "Show version information")
@@ -26,7 +29,10 @@ func unscape(s string) string {
 
 func init() {
 	flag.Usage = func() {
-		fmt.Fprintf(os.Stderr, "Usage: %s [options] <commands>  \n", os.Args[0])
+		fmt.Fprintf(os.Stderr, "Police is a command-line interface for Interpol, "+
+			"which is a string interpolation used for penetration testing, fuzzing, and much more."+
+			"\n\n"+
+			"Usage: %s [options] <commands>  \n", os.Args[0])
 		flag.PrintDefaults()
 		fmt.Fprintf(os.Stderr, "\nExample:\n"+
 			"\tpolice -sep \", \" \"Hello\" \"{{set sep=' ' data='Kitty World Dolly goodbye'}}!\"\n"+
@@ -37,10 +43,40 @@ func fail(code int, format string, a ...interface{}) {
 	fmt.Fprintf(os.Stderr, "\n"+format+"\n", a...)
 	os.Exit(code)
 }
+func readCommandsFromFile(filename string) ([]string, error) {
+	if filename == "" {
+		return nil, nil
+	}
+	r, err := os.Open(*file)
+	if err != nil {
+		return nil, err
+	}
+
+	defer r.Close()
+	br := bufio.NewReader(r)
+	var commands []string
+	for {
+		bs, p, err := br.ReadLine()
+		if p {
+			return nil, fmt.Errorf("line was too long")
+		}
+		if err == io.EOF {
+			return commands, nil
+		}
+		if err != nil {
+			return nil, err
+		}
+		fmt.Printf("GOT %s\n", string(bs))
+		commands = append(commands, string(bs))
+	}
+}
+
 func main() {
 	flag.Parse()
+	commands := flag.Args()
+
 	// Go flag doesn't go past first "-"
-	for _, str := range flag.Args() {
+	for _, str := range commands {
 		if str[0] == '-' {
 			flag.Usage()
 			fail(20, "ERROR: options should be given before commands")
@@ -52,7 +88,15 @@ func main() {
 			interpol.Version[2])
 		os.Exit(0)
 	}
-	if flag.NArg() == 0 {
+
+	// see if there are any commands we should read from file first
+	commandsFromFile, err := readCommandsFromFile(*file)
+	if err != nil {
+		fail(20, "ERROR: could not read commands from file - %v", err)
+	}
+	commands = append(commands, commandsFromFile...)
+
+	if len(commands) == 0 {
 		flag.Usage()
 		fail(20, "ERROR: no commands were given")
 	}
@@ -69,7 +113,7 @@ func main() {
 	lsep := unscape(*lsep)
 
 	ip := interpol.New()
-	strs, err := ip.AddMultiple(flag.Args()...)
+	strs, err := ip.AddMultiple(commands...)
 	if err != nil {
 		fail(20, "ERROR: '%v'", err)
 	}

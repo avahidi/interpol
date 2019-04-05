@@ -7,14 +7,13 @@ Interpol
 ========
 
 **Interpol** is a minimal `string interpolation <https://en.wikipedia.org/wiki/String_interpolation>`_
-library written in golang. It can be used to generate a series of strings from a set of rules.
+library written in Go. It can be used to generate a series of strings from a set of rules.
 This is useful for example for people doing penetration testing or fuzzing.
 
 
-**Police** is the Interpol command line interface. It is not as powerful as embedding Interpol in your
-own application (which gives you custom interpolators and modifiers) but still very handy if you are a
+**Police** is a command line interface for Interpol. It is not as powerful as embedding Interpol in your
+own application (which allows you to create custom interpolators and modifiers) but still very handy if you are a
 CLI type of person.
-
 
 You can install Police from the `Snap store <https://snapcraft.io/police>`_ ::
 
@@ -28,13 +27,14 @@ To build Police from source, install the Go compiler then execute this::
 Usage example
 -------------
 
-Consider the following example: You have forgotten your password for the company mainframe.
+Consider the following problem: You have forgotten your password to the company mainframe.
 You do however remember that the password had the following format::
 
     <one of the Friend characters> <a digit> <a currency sign>
 
-Assuming the file 'friends.txt' contains name of all friends characters, we can generate all possible combination using three interpolators::
+Since this is something that can be defined as a bunch of rules, we can use police to generate all possible combinations::
 
+    # 'friends.txt' is a file containing one friends characters per line
     $ police "{{file filename='friends.txt'}}{{counter min=0 max=9}}{{set data='£$¥€'}}"
 
     Rachel0£
@@ -45,38 +45,51 @@ Assuming the file 'friends.txt' contains name of all friends characters, we can 
     Chandler9€
     Gunther9€
 
-Use these candidates with a password recovery tool to find your lost password in no time.
-There are of course other tools for this particular usecase, but I believe few have the flexibility of Interpol/Police.
-
-See examples/hackernews for a similar example with some networking.
+You may now use these candidates with a password recovery tool to find your lost password in no time.
+There are of course other tools for this particular use case, but I believe few have the flexibility of Interpol/Police.
 
 
 Interpolators
-=============
+-------------
 
-An interpolation has the following format::
+An interpolation has the following syntax::
 
     {{type parameter1=value1 parameter2=value2 ... }}
 
-With the following types and parameters currently implemented:
+For example::
 
-- **counter**: min, max, step, format
-- **random**: min, max, count, format
-- **file**: filename, count, mode
-- **set**: data, sep, count, mode
-- **copy**: from
+    {{counter min=1 max=10 step=3}}
+
+The following ones are currently implemented::
+
+    {{counter [min=0] [max=10] [step=1] [format="%d] }}
+    {{random [min=0] [max=100] [count=5] [format="%d"] }}
+    {{file filename="somefile" [count=-1] [mode=linear] }}
+    {{set data="some input" [sep=""] [count=-1] [mode=linear] }}
+    {{copy from="name of another interpolator" }}
 
 Where
 
-- *mode* is any of linear, random or perm
-- *format* is standard Go Printf format string (e.g. "0x%08X")
-- *copy* repeats the value of another interpolator. target must have a name
+- [parameter=value] indicates an optional parameter, value is the default value
+- valid values for mode* are: linear, random or perm
+- format is standard Go fmt.Printf() format string
+- copy repeats the value of another interpolator
 
-Furthermore, all interpolators can include the following optional parameters:
 
-- *name* is used to name an element (used by copy)
-- *modifier* defines an output modifier
+Copying
+~~~~~~~
 
+All interpolators may have be given a name. This is needed when using copy::
+
+    {{counter name=mycounter}} {{copy from=mycounter}}
+
+This will yield "0 0", "1 1", and so on.
+
+
+Modifiers
+~~~~~~~~~
+
+Interpolators can also have a *modifier*, which changes their output.
 Currently the following modifiers exist:
 
 - *toupper*: make all characters upper case
@@ -84,10 +97,13 @@ Currently the following modifiers exist:
 - *capitalize*: capitalize each word
 - *1337*: leet speak modifier (random upper/lower case)
 
+For example, the following will yield "Yes", "No" and "Maybe"::
+
+    {{set data="YES,no,mayBE" sep="," modifier=capitalize}}
 
 
 Examples
-========
+--------
 
 The folder examples/ contains the following samples:
 
