@@ -8,21 +8,22 @@ import (
 	"unicode/utf8"
 )
 
-type modifierTestDataFormat struct {
-	modifier string
-	indata   string
-	outdata  string
-}
-
-var modifierTestData = []modifierTestDataFormat{
-	{"tolower", "Anders Jonas Ångström", "anders jonas ångström"},
-	{"tolower", "Anders Jonas Ångström", "anders jonas ångström"},
-	{"toupper", "Per Martin-Löf", "PER MARTIN-LÖF"},
-	{"toupper", "Lars Bergström", "LARS BERGSTRÖM"},
-	{"capitalize", "gordon GEKKO", "Gordon Gekko"},
-}
-
 func TestSimpleModifier(t *testing.T) {
+	var modifierTestData = []struct {
+		modifier string
+		indata   string
+		outdata  string
+	}{
+		{"tolower", "Anders Jonas Ångström", "anders jonas ångström"},
+		{"tolower", "Anders Jonas Ångström", "anders jonas ångström"},
+		{"toupper", "Per Martin-Löf", "PER MARTIN-LÖF"},
+		{"toupper", "Lars Bergström", "LARS BERGSTRÖM"},
+		{"capitalize", "gordon GEKKO", "Gordon Gekko"},
+		{"empty", "bla bla bla", ""},
+		{"empty", "", ""},
+		{"len", "five", "4"},
+	}
+
 	for _, test := range modifierTestData {
 		cmd := fmt.Sprintf("{{set data='%s' sep='%s' modifier=%s}}",
 			test.indata, "$$$", test.modifier)
@@ -74,5 +75,71 @@ func TestLeetModifier(t *testing.T) {
 			}
 		}
 	}
+}
 
+func TestBitflip(t *testing.T) {
+	N := 1000
+	indata := "Emacs is written in Lisp, which is the only computer language that is beautiful."
+	for i := 0; i < N; i++ {
+		ip := New()
+
+		cmd := fmt.Sprintf("{{set data='%s' sep=$$ modifier=bitflip}}", indata)
+		str, err := ip.Add(cmd)
+		if err != nil {
+			t.Errorf("%s: failed to parse, %v", cmd, err)
+		} else {
+			str2 := str.String()
+			if len(str2) != len(indata) {
+				t.Errorf("Bad size in bitflip")
+			} else {
+				cnt, diff := 0, 0
+				for i := range indata {
+					if indata[i] != str2[i] {
+						cnt++
+						diff = int(indata[i]) ^ int(str2[i])
+					}
+				}
+
+				if cnt != 1 {
+					t.Errorf("Not bytes were modified")
+				}
+				if (diff & (diff - 1)) != 0 { // diff is not a power of two?
+					t.Errorf("Exactly one bit should have been changed")
+				}
+			}
+		}
+	}
+}
+
+func TestByteswap(t *testing.T) {
+	N := 50
+	indata := "0123456789" // no repeating data
+	for i := 0; i < N; i++ {
+		ip := New()
+
+		cmd := fmt.Sprintf("{{set data='%s' sep=$$ modifier=byteswap}}", indata)
+		str, err := ip.Add(cmd)
+		if err != nil {
+			t.Errorf("%s: failed to parse, %v", cmd, err)
+		} else {
+			str2 := str.String()
+			if len(str2) != len(indata) {
+				t.Errorf("Bad size in byteswap")
+			} else {
+				cnt, mask := 0, 0
+				for i := range indata {
+					if indata[i] != str2[i] {
+						cnt++
+					}
+					// mask is a simple way to see if all bytes are still present
+					if str2[i] >= '0' && str2[i] <= '9' {
+						mask |= (1 << uint(str2[i]-'0'))
+					}
+				}
+				if cnt != 2 || mask != (1<<10)-1 {
+					t.Errorf("Exactly one byte should have been swapped")
+				}
+			}
+		}
+	}
 }

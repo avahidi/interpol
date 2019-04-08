@@ -92,6 +92,10 @@ Modifiers
 Interpolators can also have a *modifier*, which changes their output.
 Currently the following modifiers exist:
 
+- *empty*: the empty string "" (ignores input)
+- *len*: length of the input (in raw bytes, no fancy UTF-8 support)
+- *bitflip*: random flip one bit (again, using raw bytes)
+- *byteswap*: randomly swap two bytes (raw bytes again)
 - *toupper*: make all characters upper case
 - *tolower*: make all characters lower case
 - *capitalize*: capitalize each word
