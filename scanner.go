@@ -8,11 +8,12 @@ import (
 
 type scantype int
 
+// data types reported by the scanner
 const (
-	EOF scantype = iota
-	Text
-	Operator
-	Error
+	teof scantype = iota
+	ttext
+	toperator
+	terror
 )
 
 type scanner struct {
@@ -55,27 +56,23 @@ func (l *scanner) next() (string, scantype) {
 	}
 
 	str := l.input[start:l.curr]
-	// fmt.Printf("START: %d, curr=%d str='%s'\n", start, l.curr, str)
 	if start == l.curr {
-		return "", EOF
+		return "", teof
 	}
 
 	// unexpected end
 	if qoute || meta {
-		return "", Error
+		return "", terror
 	}
 
 	if str == "=" {
-		return str, Operator
+		return str, toperator
 	}
 
 	// remove qoute marks if any
-	if len(str) > 1 && ((strings.HasPrefix(str, "'") && strings.HasSuffix(str, "'")) ||
-		(strings.HasPrefix(str, "\"") && strings.HasSuffix(str, "\""))) {
-		str = str[1 : len(str)-1]
-	}
-	return str, Text
+	str = removeQoute(str)
 
+	return str, ttext
 }
 
 func newScanner(str string) *scanner {
@@ -94,9 +91,8 @@ func parseInterpolator(text string) (*InterpolatorData, error) {
 	state := 0
 	varname := ""
 	for {
-
 		str, typ := s.next()
-		if typ == EOF {
+		if typ == teof {
 			if state != 1 {
 				return nil, fmt.Errorf("Unexpected end in '%s'", text)
 			}
@@ -105,13 +101,13 @@ func parseInterpolator(text string) (*InterpolatorData, error) {
 
 		switch state {
 		case 0:
-			if typ != Text {
+			if typ != ttext {
 				return nil, fmt.Errorf("Expected type, got %s", str)
 			}
 			ret.Type = str
 			state = 1
 		case 1:
-			if typ == Operator {
+			if typ == toperator {
 				state = 2
 			} else {
 				varname = str
@@ -140,7 +136,7 @@ type textElement struct {
 func parseLine(line string) ([]textElement, error) {
 
 	if len(line) == 0 {
-		return []textElement{}, fmt.Errorf("Empty line")
+		return nil, fmt.Errorf("Empty line")
 	}
 
 	ret := make([]textElement, 0)
@@ -156,13 +152,20 @@ func parseLine(line string) ([]textElement, error) {
 			line = line[n+2:]
 			m := strings.Index(line, "}}")
 			if m == -1 {
-				ret = append(ret, textElement{static: false, text: line})
-				line = ""
-			} else {
-				ret = append(ret, textElement{static: false, text: line[:m]})
-				line = line[m+2:]
+				return nil, fmt.Errorf("Open {{ not closed")
 			}
+			ret = append(ret, textElement{static: false, text: line[:m]})
+			line = line[m+2:]
 		}
 	}
 	return ret, nil
+}
+
+func removeQoute(str string) string {
+	// remove qoute marks if any
+	if len(str) > 1 && ((strings.HasPrefix(str, "'") && strings.HasSuffix(str, "'")) ||
+		(strings.HasPrefix(str, "\"") && strings.HasSuffix(str, "\""))) {
+		str = str[1 : len(str)-1]
+	}
+	return str
 }

@@ -49,7 +49,7 @@ func main() {
 	cmd := fmt.Sprintf("{{set sep=' ' data='%s' modifier=discordia modifier-text=fnord modifier-rate=23}}", input)
 	str, err := ip.Add(cmd)
 	if err != nil {
-		log.Fatalf("Something bad hapened: %v", err)
+		log.Fatalf("Something bad happened: %v", err)
 	}
 
 	for {

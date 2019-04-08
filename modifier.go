@@ -83,9 +83,8 @@ func (t *leetModifier) Modify(str string) string {
 	return strings.Map(func(c rune) rune {
 		if (rand.Int() & 1) == 0 {
 			return unicode.ToUpper(c)
-		} else {
-			return unicode.ToLower(c)
 		}
+		return unicode.ToLower(c)
 	}, str)
 }
 

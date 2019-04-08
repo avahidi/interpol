@@ -34,7 +34,7 @@ You do however remember that the password had the following format::
 
 Since this is something that can be defined as a bunch of rules, we can use police to generate all possible combinations::
 
-    # 'friends.txt' is a file containing one friends characters per line
+    # 'friends.txt' is a file containing one friends character per line
     $ police "{{file filename='friends.txt'}}{{counter min=0 max=9}}{{set data='£$¥€'}}"
 
     Rachel0£

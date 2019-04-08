@@ -12,7 +12,7 @@ build:
 	# go build ./cmd/...
 
 test: build
-	go test ./...
+	go test ./... --cover
 
 
 examples: build

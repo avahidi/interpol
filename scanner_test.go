@@ -24,11 +24,11 @@ func TestScanner(t *testing.T) {
 		s := newScanner(test.input)
 		for _, str := range test.output {
 			str2, typ := s.next()
-			if typ == EOF {
+			if typ == teof {
 				t.Errorf("Unexpected EOF in '%s'", test.input)
 				break
 			}
-			if typ == Error {
+			if typ == terror {
 				t.Errorf("Unexpected Error in '%s'", test.input)
 				break
 			}
@@ -38,7 +38,7 @@ func TestScanner(t *testing.T) {
 		}
 
 		str, typ := s.next()
-		if typ != EOF {
+		if typ != teof {
 			t.Errorf("Expected EOF, got '%s':%d in '%s'", str, typ, test.input)
 		}
 	}
@@ -143,5 +143,32 @@ func TestParseLineCorner(t *testing.T) {
 	_, err := parseLine("")
 	if err == nil {
 		t.Error("should not allow empty line")
+	}
+
+	_, err = parseLine("{{counter")
+	if err == nil {
+		t.Error("should not allow open interpolator")
+	}
+}
+
+func TestRemoveQoute(t *testing.T) {
+	var testdata = []struct {
+		input  string
+		output string
+	}{
+		{"", ""},
+		{"\"", "\""},
+		{"'", "'"},
+		{"''", ""},
+		{"\"\"", ""},
+		{"'A'", "A"},
+		{"\"A\"", "A"},
+	}
+
+	for _, d := range testdata {
+		result := removeQoute(d.input)
+		if result != d.output {
+			t.Errorf("remove qoute expeted %s got %s", d.output, result)
+		}
 	}
 }
