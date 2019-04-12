@@ -22,6 +22,7 @@ clean:
 	go clean
 	for e in $(EXAMPLES) ; do (cd examples/$$e && go clean ) ; done
 	rm -rf parts prime stage snap police_*.snap
+	rm -f *.snap.xdelta3
 
 SNAPTARGETS = amd64 arm64 armhf # ppc64 i686
 .PHONY: snap
@@ -31,6 +32,11 @@ snap:
 	snapcraft login
 	for s in $$(ls *.snap) ; do set -e ; snapcraft push  --release edge,beta  $$s ; done
 	snapcraft logout
+
+snap-test:
+	make clean
+	snapcraft clean
+	snapcraft --debug
 
 snap-setup:
 	# i386
