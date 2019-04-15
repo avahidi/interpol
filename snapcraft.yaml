@@ -10,9 +10,9 @@ description: |
 grade: stable
 confinement: strict
 
-plugs:
-  read-files:
-    interface: personal-files
+#plugs:
+#  read-files:
+    #interface: personal-files
 
 
 
@@ -25,5 +25,5 @@ parts:
 apps:
   police:
     command: police
-    plugs:
-      - read-files
+#    plugs:
+#      - read-files

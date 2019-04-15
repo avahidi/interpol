@@ -1,10 +1,8 @@
 package interpol
 
 import (
-	"bufio"
 	"fmt"
 	"math/rand"
-	"os"
 	"strings"
 )
 
@@ -28,31 +26,6 @@ type listHandler struct {
 	index, max  int // for items
 	mode        int
 	items       []string
-}
-
-// some helper functions
-func readFileitems(filename string) ([]string, error) {
-	file, err := os.Open(filename)
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
-
-	ret := make([]string, 0)
-	rd := bufio.NewReader(file)
-
-	for {
-		str, err := rd.ReadString('\n')
-		if err != nil {
-			break
-		}
-		str = strings.Trim(str, " \t\n\r")
-		if len(str) > 0 {
-			ret = append(ret, str)
-		}
-	}
-
-	return ret, nil
 }
 
 func permutateitems(items []string) {
@@ -80,8 +53,7 @@ func newFileHandler(ctx *Interpol, text string, data *InterpolatorData) (Handler
 	if filename == "" {
 		return nil, fmt.Errorf("no filename was given")
 	}
-
-	items, err := readFileitems(filename)
+	items, err := ReadFile(filename)
 	if err != nil {
 		return nil, err
 	}
