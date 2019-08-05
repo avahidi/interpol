@@ -100,6 +100,7 @@ Currently the following modifiers exist:
 - *len*: length of the input (in raw bytes, no fancy UTF-8 support)
 - *bitflip*: randomly flip one bit (again, using raw bytes)
 - *byteswap*: randomly swap two bytes (raw bytes again)
+- *reverse*: reverse (for once, this one supports UTF-8)
 - *toupper*: make all characters upper case
 - *tolower*: make all characters lower case
 - *capitalize*: capitalize each word

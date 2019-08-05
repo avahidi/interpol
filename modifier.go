@@ -18,6 +18,7 @@ type ModifierFactory func(ctx *Interpol, data *InterpolatorData) (Modifier, erro
 
 //
 var defaultModifierFactories = map[string]ModifierFactory{
+	"reverse":    newReverseModifier,
 	"toupper":    newToupperModifier,
 	"tolower":    newTolowerModifier,
 	"capitalize": newCapitalizeModifier,
@@ -38,6 +39,26 @@ func findDefaultModifierFactory(name string) ModifierFactory {
 		return fact
 	}
 	return nil
+}
+
+//
+// reverse
+//
+
+type reverseModifier struct{}
+
+func (t *reverseModifier) Modify(str string) string {
+	n := len(str)
+	rr := make([]rune, n)
+	for _, v := range str {
+		n--
+		rr[n] = v
+	}
+	return string(rr[n:])
+}
+
+func newReverseModifier(ctx *Interpol, data *InterpolatorData) (Modifier, error) {
+	return &reverseModifier{}, nil
 }
 
 //

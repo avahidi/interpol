@@ -14,6 +14,9 @@ func TestSimpleModifier(t *testing.T) {
 		indata   string
 		outdata  string
 	}{
+		{"reverse", "", ""},
+		{"reverse", "ABc", "cBA"},
+		{"reverse", "頭いってる", "るてっい頭"},
 		{"tolower", "Anders Jonas Ångström", "anders jonas ångström"},
 		{"tolower", "Anders Jonas Ångström", "anders jonas ångström"},
 		{"toupper", "Per Martin-Löf", "PER MARTIN-LÖF"},
