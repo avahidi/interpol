@@ -52,7 +52,7 @@ Interpolators
 -------------
 
 In our example above the rules were defined as expressions embedded in a string.
-Evaluating expressions within strings if often called *string interpolation*,
+Evaluating expressions within strings is often called *string interpolation*,
 hence we have chosen to call each rule fragment an "interpolation" and the logic behind it an "interpolator".
 
 

@@ -28,6 +28,8 @@ SNAPTARGETS = amd64 arm64 armhf # ppc64 i686
 .PHONY: snap
 snap:
 	make clean
+	make build
+	make test
 	for t in $(SNAPTARGETS) ; do set -e ; snapcraft clean ; snapcraft  --debug --target-arch $$t ; done
 	snapcraft login
 	for s in $$(ls *.snap) ; do set -e ; snapcraft push  --release edge,beta  $$s ; done
