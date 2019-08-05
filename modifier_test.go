@@ -25,6 +25,9 @@ func TestSimpleModifier(t *testing.T) {
 		{"empty", "bla bla bla", ""},
 		{"empty", "", ""},
 		{"len", "five", "4"},
+		{"base64", "", ""},
+		{"base64", "Fermat said he had a proof", "RmVybWF0IHNhaWQgaGUgaGFkIGEgcHJvb2Y="},
+		{"base64", "ずるい :)", "44Ga44KL44GEIDop"},
 	}
 
 	for _, test := range modifierTestData {

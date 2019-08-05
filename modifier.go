@@ -1,6 +1,7 @@
 package interpol
 
 import (
+	"encoding/base64"
 	"math/rand"
 	"strconv"
 	"strings"
@@ -28,6 +29,7 @@ var defaultModifierFactories = map[string]ModifierFactory{
 	"len":        newLenModifier,
 	"bitflip":    newBitflipModifier,
 	"byteswap":   newByteswapModifier,
+	"base64":     newBase64Modifier,
 }
 
 func addDefaultModifierFactories(name string, factory ModifierFactory) {
@@ -194,4 +196,16 @@ func (t *byteswapModifier) Modify(str string) string {
 
 func newByteswapModifier(ctx *Interpol, data *InterpolatorData) (Modifier, error) {
 	return &byteswapModifier{}, nil
+}
+
+// base64
+
+type base64Modifier struct{}
+
+func (t *base64Modifier) Modify(str string) string {
+	return base64.StdEncoding.EncodeToString([]byte(str))
+}
+
+func newBase64Modifier(ctx *Interpol, data *InterpolatorData) (Modifier, error) {
+	return &base64Modifier{}, nil
 }
