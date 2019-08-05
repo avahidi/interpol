@@ -27,10 +27,10 @@ To build Police from source, install the Go compiler then execute this::
 Usage example
 -------------
 
-Consider the following problem: You have forgotten your password to the company mainframe.
+Consider the following problem: you have forgotten your password to the company mainframe.
 You do however remember that the password had the following format::
 
-    <one of the Friend characters> <a digit> <a currency sign>
+    <one of the Friends characters> <a digit> <a currency sign>
 
 Since this is something that can be defined as a bunch of rules, we can use police to generate all possible combinations::
 
@@ -46,11 +46,15 @@ Since this is something that can be defined as a bunch of rules, we can use poli
     Gunther9€
 
 You may now use these candidates with a password recovery tool to find your lost password in no time.
-There are of course other tools for this particular use case, but I believe few have the flexibility of Interpol/Police.
 
 
 Interpolators
 -------------
+
+In our example above the rules were defined as expressions embedded in a string.
+Evaluating expressions within strings if often called *string interpolation*,
+hence we have chosen to call each rule fragment an "interpolation" and the logic behind it an "interpolator".
+
 
 An interpolation has the following syntax::
 
@@ -66,14 +70,14 @@ The following interpolators are currently available::
     {{random [min=0] [max=100] [count=5] [format="%d"] }}
     {{file filename="somefile" [count=-1] [mode=linear] }}
     {{set data="some input" [sep=""] [count=-1] [mode=linear] }}
-    {{copy from="name of another interpolator" }}
+    {{copy from="others-name" }}
 
 Where
 
 - [parameter=value] indicates an optional parameter, value is the default value
 - valid values for mode are: linear, random or perm
-- format is standard Go fmt.Printf() format string
-- copy repeats the value of another interpolator
+- format is standard Go fmt.Printf() format string (which is fairly similar to C format strings)
+- copy repeats the value of another interpolation (see below)
 
 
 Copying
@@ -81,7 +85,7 @@ Copying
 
 Interpolators may be given a name. This is needed when using copy::
 
-    {{counter name=mycounter}} {{copy from=mycounter}}
+    "{{counter name=mycounter}} {{copy from=mycounter}}"
 
 This will yield "0 0", "1 1", and so on.
 
@@ -89,12 +93,12 @@ This will yield "0 0", "1 1", and so on.
 Modifiers
 ~~~~~~~~~
 
-Interpolators can also have a *modifier*, which changes their output.
+Interpolators can also have an output *modifier*.
 Currently the following modifiers exist:
 
 - *empty*: the empty string "" (ignores input)
 - *len*: length of the input (in raw bytes, no fancy UTF-8 support)
-- *bitflip*: random flip one bit (again, using raw bytes)
+- *bitflip*: randomly flip one bit (again, using raw bytes)
 - *byteswap*: randomly swap two bytes (raw bytes again)
 - *toupper*: make all characters upper case
 - *tolower*: make all characters lower case
