@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bitbucket.org/vahidi/interpol"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -9,6 +8,8 @@ import (
 	"math/rand"
 	"net/http"
 	"time"
+
+	"bitbucket.org/vahidi/interpol"
 )
 
 type item struct {
@@ -48,20 +49,19 @@ func showPage(page []byte) error {
 
 	if it.Title != "" {
 		// self post
-		fmt.Printf("\n%s\n\t%s\n\t\t-%s\n", it.Title, it.Text, it.By)
+		fmt.Printf("\nPOST by %s:\n%s\n%s\n", it.By, it.Title, it.Text)
 	} else {
 		// comment or link post
-		fmt.Printf("\n%s\n\t-%s\n", it.Text, it.By)
+		fmt.Printf("\nCOMMENT by %s:\n%s\n", it.By, it.Text)
 	}
 	return nil
 }
 
 func main() {
-
 	rand.Seed(time.Now().UTC().UnixNano())
 
 	ip := interpol.New()
-	useragent, err := ip.Add("{{file filename=useragents.txt count=1 mode=random}})")
+	useragent, err := ip.Add("{{file filename=useragents.txt count=1 mode=random modifier=trim}}")
 	if err != nil {
 		log.Fatalf("Bad things just happened: %v", err)
 	}

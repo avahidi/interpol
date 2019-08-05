@@ -101,6 +101,7 @@ Currently the following modifiers exist:
 - *bitflip*: randomly flip one bit (again, using raw bytes)
 - *byteswap*: randomly swap two bytes (raw bytes again)
 - *reverse*: reverse (for once, this one supports UTF-8)
+- *trim*: trim text (remove space before and after)
 - *base64*: base64 encode
 - *toupper*: make all characters upper case
 - *tolower*: make all characters lower case

@@ -133,8 +133,11 @@ func (fh *listHandler) Reset() {
 	fh.curr = 0
 	fh.index = 0
 
-	if fh.mode == modePerm {
+	switch fh.mode {
+	case modePerm:
 		permutateitems(fh.items)
+	case modeRandom:
+		fh.index = rand.Int() % len(fh.items)
 	}
 }
 

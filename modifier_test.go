@@ -28,6 +28,9 @@ func TestSimpleModifier(t *testing.T) {
 		{"base64", "", ""},
 		{"base64", "Fermat said he had a proof", "RmVybWF0IHNhaWQgaGUgaGFkIGEgcHJvb2Y="},
 		{"base64", "ずるい :)", "44Ga44KL44GEIDop"},
+
+		{"trim", "", ""},
+		{"trim", " AAA BB  C    \t\n", "AAA BB  C"},
 	}
 
 	for _, test := range modifierTestData {

@@ -20,6 +20,7 @@ type ModifierFactory func(ctx *Interpol, data *InterpolatorData) (Modifier, erro
 //
 var defaultModifierFactories = map[string]ModifierFactory{
 	"reverse":    newReverseModifier,
+	"trim":       newTrimModifier,
 	"toupper":    newToupperModifier,
 	"tolower":    newTolowerModifier,
 	"capitalize": newCapitalizeModifier,
@@ -64,6 +65,18 @@ func newReverseModifier(ctx *Interpol, data *InterpolatorData) (Modifier, error)
 }
 
 //
+// trim
+//
+
+type trimModifier struct{}
+
+func (t *trimModifier) Modify(str string) string { return strings.Trim(str, " \t\n") }
+
+func newTrimModifier(ctx *Interpol, data *InterpolatorData) (Modifier, error) {
+	return &trimModifier{}, nil
+}
+
+//
 // to upper
 //
 
@@ -88,7 +101,7 @@ func newTolowerModifier(ctx *Interpol, data *InterpolatorData) (Modifier, error)
 }
 
 //
-// to lower
+// capitalize
 //
 
 type capitalizeModifier struct{}
