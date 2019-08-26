@@ -48,7 +48,7 @@ func main() {
 
 	// Go flag doesn't go past first "-"
 	for _, str := range commands {
-		if str[0] == '-' {
+		if len(str) > 0 && str[0] == '-' {
 			flag.Usage()
 			fail(20, "ERROR: options should be given before commands")
 		}
@@ -91,7 +91,7 @@ func main() {
 		fail(20, "ERROR: '%v'", err)
 	}
 
-	for {
+	for ip.Next() {
 		for i, s := range strs {
 			if i != 0 {
 				fmt.Print(sep)
@@ -99,9 +99,5 @@ func main() {
 			fmt.Print(s.String())
 		}
 		fmt.Print(lsep)
-
-		if !ip.Next() {
-			break
-		}
 	}
 }

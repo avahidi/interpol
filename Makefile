@@ -18,6 +18,11 @@ test: build
 examples: build
 	for e in $(EXAMPLES) ; do (cd examples/$$e && echo $$e: && go run *.go ) ; done
 
+	# include examples from police so we know its working...
+	go run cmd/police/main.go -sep ", " "Hello" "{{set sep=' ' data='Kitty World Dolly goodbye'}}!"
+	go run cmd/police/main.go -lsep ":" "{{random min=0 max=255 count=8 format=%02x}}"
+
+
 clean:
 	go clean
 	for e in $(EXAMPLES) ; do (cd examples/$$e && go clean ) ; done
