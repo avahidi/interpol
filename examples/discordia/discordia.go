@@ -52,11 +52,8 @@ func main() {
 		log.Fatalf("Something bad happened: %v", err)
 	}
 
-	for {
+	for ip.Next() {
 		fmt.Printf("%s ", str.String())
-		if !ip.Next() {
-			break
-		}
 	}
 	fmt.Println()
 }

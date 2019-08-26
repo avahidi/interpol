@@ -1,4 +1,4 @@
 package interpol
 
 // Version is library version number
-var Version = []int{0, 1, 4}
+var Version = []int{0, 2, 0}

@@ -2,8 +2,10 @@
 package main
 
 import (
-	"bitbucket.org/vahidi/interpol"
 	"fmt"
+	"log"
+
+	"bitbucket.org/vahidi/interpol"
 )
 
 // We want to replace 99 with a random number. But since the same number
@@ -27,13 +29,10 @@ func main() {
 	ip := interpol.New()
 	song, err := ip.Add(text)
 	if err != nil {
-		fmt.Printf("Failed: %v\n", err)
-	} else {
-		for {
-			fmt.Printf("%s\n", song.String())
-			if !ip.Next() {
-				break
-			}
-		}
+		log.Fatalf("Failed: %v\n", err)
+	}
+
+	for ip.Next() {
+		fmt.Printf("%s\n", song.String())
 	}
 }

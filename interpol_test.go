@@ -73,6 +73,7 @@ func TestInterpolReset(t *testing.T) {
 		t.Errorf("failed to add normal string: %v", err)
 	}
 
+	ip.Next() // 0
 	ip.Next() // 1
 	ip.Next() // 2
 	if str.String() != "2" {
@@ -80,6 +81,7 @@ func TestInterpolReset(t *testing.T) {
 	}
 
 	ip.Reset() // 0
+	ip.Next()  // 0
 	ip.Next()  // 1
 	if str.String() != "1" {
 		t.Errorf("incorrect value after reset: %v", str)

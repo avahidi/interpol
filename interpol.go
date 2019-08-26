@@ -85,6 +85,7 @@ type Interpol struct {
 	modifierFactories map[string]ModifierFactory
 	elements          []*element
 	exported          map[string]Handler
+	first             bool
 }
 
 // New creates a new interpolator context
@@ -104,10 +105,20 @@ func (ip *Interpol) Reset() {
 	for _, h := range ip.elements {
 		h.Reset()
 	}
+	ip.first = true
 }
 
 // Next calculates the next value
 func (ip *Interpol) Next() bool {
+
+	// This thing allows us to do "for ip.Next() { }", which
+	// simplifies user code a bit. Note that it also means
+	// Interpol.Next() and Handler.Next() function differently
+	if ip.first && len(ip.elements) > 0 {
+		ip.first = false
+		return true
+	}
+
 	for _, e := range ip.elements {
 		if e.Next() {
 			return true

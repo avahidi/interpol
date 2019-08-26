@@ -1,9 +1,17 @@
 package interpol
 
 // Handler represents a handler for a certain type of interpolation
+//
+// Note 1: Handler object should call Reset() when created
+// Note 2: String() should be valid right after Reset()
+// Note 3: Unlike Interpol, Next() after Reset() yields the _second_ value not first.
 type Handler interface {
 	String() string
+
+	// Get the next value, returns false if no more values are available
 	Next() bool
+
+	// Reset the handler and prepare the first value
 	Reset()
 }
 

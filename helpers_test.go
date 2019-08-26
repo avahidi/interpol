@@ -32,12 +32,9 @@ func helperInterpolateAll(cmds ...string) ([][]string, error) {
 // get all data from already created interpolations
 func helperExtractAll(ip *Interpol, strs ...*InterpolatedString) [][]string {
 	ret := make([][]string, len(strs))
-	for {
+	for ip.Next() {
 		for i := range strs {
 			ret[i] = append(ret[i], strs[i].String())
-		}
-		if !ip.Next() {
-			break
 		}
 	}
 	return ret

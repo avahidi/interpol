@@ -6,8 +6,10 @@
 package main
 
 import (
-	"bitbucket.org/vahidi/interpol"
 	"fmt"
+	"log"
+
+	"bitbucket.org/vahidi/interpol"
 )
 
 // this is the internal structure the handler will use for its own data
@@ -53,15 +55,12 @@ func main() {
 
 	hodor, err := ip.Add("{{hodor count=4}}")
 	if err != nil {
-		fmt.Printf("Failed: %v\n", err)
-	} else {
-		for {
-			fmt.Printf(hodor.String())
-			if !ip.Next() {
-				break
-			}
-		}
-		fmt.Println()
+		log.Fatalf("Failed: %v\n", err)
 	}
+
+	for ip.Next() {
+		fmt.Printf(hodor.String())
+	}
+	fmt.Println()
 
 }

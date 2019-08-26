@@ -73,7 +73,7 @@ func main() {
 
 	fmt.Printf("Today I will be %v\n", useragent)
 
-	for {
+	for ip.Next() {
 		page, err := downloadPage(url.String(), useragent.String())
 		if err == nil {
 			err = showPage(page)
@@ -81,9 +81,6 @@ func main() {
 		if err != nil {
 			log.Printf("I guess things can sometimes go wrong: %v", err)
 			return
-		}
-		if !ip.Next() {
-			break
 		}
 	}
 }

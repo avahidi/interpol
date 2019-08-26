@@ -113,15 +113,48 @@ For example, the following will yield "Yes", "No" and "Maybe"::
     {{set data="YES,no,mayBE" sep="," modifier=capitalize}}
 
 
-Examples
---------
+API
+---
 
-The folder examples/ contains the following samples:
+Interpol can be used as a library in your own programs::
+
+    package main
+
+    import (
+        "fmt"
+        "log"
+        "bitbucket.org/vahidi/interpol"
+    )
+
+    func main() {
+        ip := interpol.New()
+        vs, err := ip.AddMultiple(
+            "{{counter min=10 max=33 step=7}}",
+            "{{set data='ABCD' mode='linear'}}",
+            "{{counter min=0 max=9}}",
+        )
+
+        if err != nil {
+            log.Fatal(err)
+        }
+
+        for ip.Next() {
+            fmt.Printf("%s-%s-%s\n", vs[0], vs[1], vs[2])
+        }
+    }
+    // 10-A-0
+    // 17-A-0
+    // ...
+
+Some more interesting examples can be found in the examples/ folder:
 
 - **hackernews** - download 3 random HN comments from firebase
 - **nena** - demonstrates use of copy
 - **hodor** - as the name clearly implies this one teaches you to create custom interpolators
 - **discordia** - demonstrates use of custom modifiers
+
+
+
 
 
 License
