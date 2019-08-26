@@ -15,7 +15,7 @@ type Modifier interface {
 }
 
 // ModifierFactory creates a new modifier
-type ModifierFactory func(ctx *Interpol, data *InterpolatorData) (Modifier, error)
+type ModifierFactory func(ctx *Interpol, data *Parameters) (Modifier, error)
 
 //
 var defaultModifierFactories = map[string]ModifierFactory{
@@ -60,7 +60,7 @@ func (t *reverseModifier) Modify(str string) string {
 	return string(rr[n:])
 }
 
-func newReverseModifier(ctx *Interpol, data *InterpolatorData) (Modifier, error) {
+func newReverseModifier(ctx *Interpol, data *Parameters) (Modifier, error) {
 	return &reverseModifier{}, nil
 }
 
@@ -72,7 +72,7 @@ type trimModifier struct{}
 
 func (t *trimModifier) Modify(str string) string { return strings.Trim(str, " \t\n") }
 
-func newTrimModifier(ctx *Interpol, data *InterpolatorData) (Modifier, error) {
+func newTrimModifier(ctx *Interpol, data *Parameters) (Modifier, error) {
 	return &trimModifier{}, nil
 }
 
@@ -84,7 +84,7 @@ type toupperModifier struct{}
 
 func (t *toupperModifier) Modify(str string) string { return strings.ToUpper(str) }
 
-func newToupperModifier(ctx *Interpol, data *InterpolatorData) (Modifier, error) {
+func newToupperModifier(ctx *Interpol, data *Parameters) (Modifier, error) {
 	return &toupperModifier{}, nil
 }
 
@@ -96,7 +96,7 @@ type tolowerModifier struct{}
 
 func (t *tolowerModifier) Modify(str string) string { return strings.ToLower(str) }
 
-func newTolowerModifier(ctx *Interpol, data *InterpolatorData) (Modifier, error) {
+func newTolowerModifier(ctx *Interpol, data *Parameters) (Modifier, error) {
 	return &tolowerModifier{}, nil
 }
 
@@ -110,7 +110,7 @@ func (c *capitalizeModifier) Modify(str string) string {
 	return strings.Title(strings.ToLower(str))
 }
 
-func newCapitalizeModifier(ctx *Interpol, data *InterpolatorData) (Modifier, error) {
+func newCapitalizeModifier(ctx *Interpol, data *Parameters) (Modifier, error) {
 	return &capitalizeModifier{}, nil
 }
 
@@ -129,7 +129,7 @@ func (t *leetModifier) Modify(str string) string {
 	}, str)
 }
 
-func newLeetModifier(ctx *Interpol, data *InterpolatorData) (Modifier, error) {
+func newLeetModifier(ctx *Interpol, data *Parameters) (Modifier, error) {
 	return &leetModifier{}, nil
 }
 
@@ -143,7 +143,7 @@ func (t *emptyModifier) Modify(str string) string {
 	return ""
 }
 
-func newEmptyModifier(ctx *Interpol, data *InterpolatorData) (Modifier, error) {
+func newEmptyModifier(ctx *Interpol, data *Parameters) (Modifier, error) {
 	return &emptyModifier{}, nil
 }
 
@@ -158,7 +158,7 @@ func (t *lenModifier) Modify(str string) string {
 	// return strconv.Itoa(utf8.RuneCountInString(str))
 }
 
-func newLenModifier(ctx *Interpol, data *InterpolatorData) (Modifier, error) {
+func newLenModifier(ctx *Interpol, data *Parameters) (Modifier, error) {
 	return &lenModifier{}, nil
 }
 
@@ -180,7 +180,7 @@ func (t *bitflipModifier) Modify(str string) string {
 	return string(bs)
 }
 
-func newBitflipModifier(ctx *Interpol, data *InterpolatorData) (Modifier, error) {
+func newBitflipModifier(ctx *Interpol, data *Parameters) (Modifier, error) {
 	return &bitflipModifier{}, nil
 }
 
@@ -207,7 +207,7 @@ func (t *byteswapModifier) Modify(str string) string {
 	return string(bs)
 }
 
-func newByteswapModifier(ctx *Interpol, data *InterpolatorData) (Modifier, error) {
+func newByteswapModifier(ctx *Interpol, data *Parameters) (Modifier, error) {
 	return &byteswapModifier{}, nil
 }
 
@@ -219,6 +219,6 @@ func (t *base64Modifier) Modify(str string) string {
 	return base64.StdEncoding.EncodeToString([]byte(str))
 }
 
-func newBase64Modifier(ctx *Interpol, data *InterpolatorData) (Modifier, error) {
+func newBase64Modifier(ctx *Interpol, data *Parameters) (Modifier, error) {
 	return &base64Modifier{}, nil
 }

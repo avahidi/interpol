@@ -12,7 +12,7 @@ type counterHandler struct {
 	format           string
 }
 
-func newCounterHandler(ctx *Interpol, text string, data *InterpolatorData) (Handler, error) {
+func newCounterHandler(ctx *Interpol, text string, data *Parameters) (Handler, error) {
 	start := data.GetInteger("min", 0)
 	end := data.GetInteger("max", 10)
 	step := data.GetInteger("step", 1)
@@ -58,7 +58,7 @@ type randomHandler struct {
 	format              string
 }
 
-func newrandomHandler(ctx *Interpol, text string, data *InterpolatorData) (Handler, error) {
+func newrandomHandler(ctx *Interpol, text string, data *Parameters) (Handler, error) {
 	min := data.GetInteger("min", 0)
 	max := data.GetInteger("max", 100)
 	if min >= max {

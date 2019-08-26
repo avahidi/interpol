@@ -8,7 +8,7 @@ type Handler interface {
 }
 
 // HandlerFactory creates a new handler for a given text or command
-type HandlerFactory func(ctx *Interpol, text string, data *InterpolatorData) (Handler, error)
+type HandlerFactory func(ctx *Interpol, text string, data *Parameters) (Handler, error)
 
 // default factories are added to all interpolators upon creation
 var defaultHandlerFactories = map[string]HandlerFactory{}

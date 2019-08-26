@@ -7,13 +7,13 @@ import (
 	"strings"
 )
 
-// interpolElement is part of an interpolated string
-type interpolElement struct {
+// element is part of an interpolated string
+type element struct {
 	handler  Handler
 	modifier Modifier
 }
 
-func (ie *interpolElement) String() string {
+func (ie *element) String() string {
 	str := ie.handler.String()
 	if ie.modifier != nil {
 		str = ie.modifier.Modify(str)
@@ -21,17 +21,17 @@ func (ie *interpolElement) String() string {
 	return str
 }
 
-func (ie *interpolElement) Reset() {
+func (ie *element) Reset() {
 	ie.handler.Reset()
 }
 
-func (ie *interpolElement) Next() bool {
+func (ie *element) Next() bool {
 	return ie.handler.Next()
 }
 
 // InterpolatedString contains an interpolator object
 type InterpolatedString struct {
-	elements []*interpolElement
+	elements []*element
 
 	buffer *bytes.Buffer
 }
@@ -41,7 +41,7 @@ func newInterpolatedString(size int) *InterpolatedString {
 
 	bs := make([]byte, 1024)
 	ret.buffer = bytes.NewBuffer(bs)
-	ret.elements = make([]*interpolElement, size)
+	ret.elements = make([]*element, size)
 	return ret
 }
 
@@ -54,22 +54,22 @@ func (ips *InterpolatedString) String() string {
 	return ips.buffer.String()
 }
 
-// InterpolatorData interpolator command in a more accesible form
-type InterpolatorData struct {
+// Parameters for an interpolator command in a more accesible form
+type Parameters struct {
 	Type       string
 	Properties map[string]string
 }
 
-// GetString extracts a string from interpolation data
-func (id *InterpolatorData) GetString(name string, def string) string {
+// GetString returns an interpolation parameter as string
+func (id *Parameters) GetString(name string, def string) string {
 	if s, okay := id.Properties[name]; okay {
 		return s
 	}
 	return def
 }
 
-// GetInteger extracts an integer from interpolation data
-func (id *InterpolatorData) GetInteger(name string, def int) int {
+// GetInteger returns an interpolation parameter as int
+func (id *Parameters) GetInteger(name string, def int) int {
 	if s, okay := id.Properties[name]; okay {
 		n, err := strconv.Atoi(s)
 		if err == nil {
@@ -83,7 +83,7 @@ func (id *InterpolatorData) GetInteger(name string, def int) int {
 type Interpol struct {
 	handlerFactories  map[string]HandlerFactory
 	modifierFactories map[string]ModifierFactory
-	elements          []*interpolElement
+	elements          []*element
 	exported          map[string]Handler
 }
 
@@ -93,7 +93,7 @@ func New() *Interpol {
 	ret.handlerFactories = make(map[string]HandlerFactory)
 	ret.modifierFactories = make(map[string]ModifierFactory)
 	ret.exported = make(map[string]Handler)
-	ret.elements = make([]*interpolElement, 0)
+	ret.elements = make([]*element, 0)
 
 	ret.Reset()
 	return ret
@@ -138,7 +138,7 @@ func (ip *Interpol) findModifierFactory(name string) ModifierFactory {
 	return findDefaultModifierFactory(name)
 }
 
-func (ip *Interpol) createModifier(id *InterpolatorData) (Modifier, error) {
+func (ip *Interpol) createModifier(id *Parameters) (Modifier, error) {
 	if id != nil {
 		if name := id.GetString("modifier", ""); name != "" {
 			mf := ip.findModifierFactory(name)
@@ -181,7 +181,7 @@ func (ip *Interpol) tryImport(name string) Handler {
 	return nil
 }
 
-func (ip *Interpol) tryExport(data *InterpolatorData, h Handler) error {
+func (ip *Interpol) tryExport(data *Parameters, h Handler) error {
 	if data != nil {
 		if name, okay := data.Properties["name"]; okay {
 			if _, seenbefore := ip.exported[name]; seenbefore {
@@ -206,7 +206,7 @@ func (ip *Interpol) Add(text string) (*InterpolatedString, error) {
 	ret := newInterpolatedString(len(els))
 	for i, e := range els {
 		var factory HandlerFactory
-		var id *InterpolatorData
+		var id *Parameters
 		if e.static {
 			factory = newTextHandler
 			id = nil
@@ -236,7 +236,7 @@ func (ip *Interpol) Add(text string) (*InterpolatedString, error) {
 			return nil, err
 		}
 
-		ret.elements[i] = &interpolElement{handler: handler, modifier: modifier}
+		ret.elements[i] = &element{handler: handler, modifier: modifier}
 
 	}
 

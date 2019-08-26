@@ -17,7 +17,7 @@ type hodor struct {
 }
 
 // this is a handler factory function, called to create new instances
-func hodorHodor(ctx *interpol.Interpol, text string, data *interpol.InterpolatorData) (interpol.Handler, error) {
+func hodorHodor(ctx *interpol.Interpol, text string, data *interpol.Parameters) (interpol.Handler, error) {
 	ret := &hodor{
 		count: data.GetInteger("count", 5),
 	}

@@ -31,7 +31,7 @@ func (m *discordiaModifier) Modify(str string) string {
 
 // interpol will use this function to create a modifier.
 // Note how we extract parameters from the input
-func newDiscordiaModifier(ctx *interpol.Interpol, data *interpol.InterpolatorData) (interpol.Modifier, error) {
+func newDiscordiaModifier(ctx *interpol.Interpol, data *interpol.Parameters) (interpol.Modifier, error) {
 	return &discordiaModifier{
 		rate: data.GetInteger("modifier-rate", 10),
 		text: data.GetString("modifier-text", "emc2"),

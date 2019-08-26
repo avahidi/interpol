@@ -34,7 +34,7 @@ var simpleDualTestdata = []testdataDual{
 		[]string{"A", "B", "A", "B"}, []string{"w", "w", "1", "1"}},
 }
 
-func NilCreator(ctx *Interpol, text string, data *InterpolatorData) (Handler, error) {
+func NilCreator(ctx *Interpol, text string, data *Parameters) (Handler, error) {
 	return nil, nil
 }
 

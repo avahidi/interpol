@@ -9,7 +9,7 @@ type textHandler struct {
 	text string
 }
 
-func newTextHandler(ctx *Interpol, text string, data *InterpolatorData) (Handler, error) {
+func newTextHandler(ctx *Interpol, text string, data *Parameters) (Handler, error) {
 	return &textHandler{text: text}, nil
 }
 
@@ -29,7 +29,7 @@ type copyHandler struct {
 	from Handler
 }
 
-func newCopyHandler(ctx *Interpol, text string, data *InterpolatorData) (Handler, error) {
+func newCopyHandler(ctx *Interpol, text string, data *Parameters) (Handler, error) {
 	from := ctx.tryImport(data.GetString("from", ""))
 	if from == nil {
 		return nil, fmt.Errorf("copy could not find target")

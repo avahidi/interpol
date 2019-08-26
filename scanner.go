@@ -81,8 +81,8 @@ func newScanner(str string) *scanner {
 
 // parseInterpolator parses the interpolator textElements.
 // It is basically a betterversion of strings.Split() that handles ' and " and \
-func parseInterpolator(text string) (*InterpolatorData, error) {
-	ret := &InterpolatorData{
+func parseInterpolator(text string) (*Parameters, error) {
+	ret := &Parameters{
 		Properties: make(map[string]string),
 	}
 
