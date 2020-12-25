@@ -51,20 +51,17 @@ snap:
 	make clean
 	make build
 	make test
-	for t in $(SNAPTARGETS) ; do set -e ;$(SNAPCRAFT) --target-arch $$t ; done
-
+	
+	$(SNAPCRAFT)
 	$(SNAPCRAFT) login
-	for s in $$(ls *.snap) ; do set -e ; $(SNAPCRAFT)  push  --release edge,beta  $$s ; done
-	$(SNAPCRAFT)  logout
-	# Cleanup ...
-	$(SNAPCRAFT) --use-lxd  clean
+	$(SNAPCRAFT) push --release edge,beta  *.snap
+	$(SNAPCRAFT) logout
 
-snap-test:
-	make clean
-	snapcraft clean
-	snapcraft --debug
+	snapcraft clean # remove new garbage
+	-lxc delete -f snapcraft-police
+
 
 snap-setup:
 	sudo snap install snapcraft #multipass
-	sudo apt install -y binutils-arm-linux-gnueabihf gcc-arm-linux-gnueabihf
+#	sudo apt install -y binutils-arm-linux-gnueabihf gcc-arm-linux-gnueabihf
 
