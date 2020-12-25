@@ -7,23 +7,22 @@ description: |
   library. It can be used to generate lists of entries based on a set of
   rules, for example for use in penetration testing or fuzzing.
 
+base: core20
 grade: stable
 confinement: strict
 
-#plugs:
-#  read-files:
-    #interface: personal-files
-
-
+architectures:
+  - build-on: [amd64]
+    run-on: [armhf, arm64, amd64, i386]
 
 parts:
   police:
     source: .
     plugin: go
-    go-importpath: bitbucket.org/vahidi/interpol
+
 
 apps:
   police:
-    command: police
+    command: bin/police
 #    plugs:
 #      - read-files
