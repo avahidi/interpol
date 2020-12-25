@@ -79,6 +79,17 @@ func (id *Parameters) GetInteger(name string, def int) int {
 	return def
 }
 
+// GetBoolean returns an interpolation parameter as int
+func (id *Parameters) GetBoolean(name string, def bool) bool {
+	if s, okay := id.Properties[name]; okay {
+		n, err := strconv.ParseBool(s)
+		if err == nil {
+			return n
+		}
+	}
+	return def
+}
+
 // Interpol context for an interpolation
 type Interpol struct {
 	handlerFactories  map[string]HandlerFactory

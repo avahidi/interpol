@@ -68,8 +68,8 @@ The following interpolators are currently available::
 
     {{counter [min=0] [max=10] [step=1] [format="%d] }}
     {{random [min=0] [max=100] [count=5] [format="%d"] }}
-    {{file filename="somefile" [count=-1] [mode=linear] }}
-    {{set data="some input" [sep=""] [count=-1] [mode=linear] }}
+    {{file filename="somefile" [count=-1] [mode=linear] [empty=false] }}
+    {{set data="some input" [sep=""] [count=-1] [mode=linear] [empty=false] }}
     {{copy from="others-name" }}
 
 Where
@@ -77,6 +77,7 @@ Where
 - [parameter=value] indicates an optional parameter, value is the default value
 - valid values for mode are: linear, random or perm
 - format is standard Go fmt.Printf() format string (which is fairly similar to C format strings)
+- empty adds an empty string to the result. This is useful for optional values.
 - copy repeats the value of another interpolation (see below)
 
 
