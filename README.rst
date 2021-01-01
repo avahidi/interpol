@@ -153,6 +153,7 @@ Some more interesting examples can be found in the examples/ folder:
 - **nena** - demonstrates use of copy
 - **hodor** - as the name clearly implies this one teaches you to create custom interpolators
 - **discordia** - demonstrates use of custom modifiers
+- **webpass** - web form brute force example, because we are too cool to use hydra
 
 
 

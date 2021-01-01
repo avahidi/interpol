@@ -1,6 +1,6 @@
 
 
-EXAMPLES=hackernews nena hodor discordia
+EXAMPLES=webpass hackernews nena hodor discordia
 
 .PHONY: build test examples clean fmt
 
@@ -34,11 +34,11 @@ fmt:
 
 .PHONY: report
 report:
-	-go get -u github.com/client9/misspell/cmd/misspell
-	-go get -u github.com/fzipp/gocyclo
+	-go install github.com/client9/misspell/cmd/misspell
+	-go install github.com/fzipp/gocyclo/cmd/gocyclo
 	-misspell *.go lib
 	-gocyclo -top 15 -avg .
-	-go tool vet .
+	-go vet
 
 
 # ---- snaps ----
