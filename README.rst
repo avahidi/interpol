@@ -15,13 +15,10 @@ This is useful for example for people doing penetration testing or fuzzing.
 own application (which allows you to create custom interpolators and modifiers) but still very handy if you are a
 CLI type of person.
 
-You can install Police from the `Snap store <https://snapcraft.io/police>`_ ::
 
-    $ sudo snap install police
+To install police, install golang then run this:
 
-To build Police from source, install the Go compiler then execute this::
-
-    $ go get -u bitbucket.org/vahidi/interpol/cmd/police/...
+    go get github.com/avahidi/interpol/cmd/...
 
 
 Usage example
