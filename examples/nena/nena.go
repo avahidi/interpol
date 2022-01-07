@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"bitbucket.org/vahidi/interpol"
+	"github.com/avahidi/interpol"
 )
 
 // We want to replace 99 with a random number. But since the same number

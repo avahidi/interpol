@@ -12,7 +12,7 @@ import (
 	"sync"
 	"time"
 
-	"bitbucket.org/vahidi/interpol"
+	"github.com/avahidi/interpol"
 )
 
 // data for one web access, change this to change the application behavior
@@ -127,7 +127,7 @@ func worker(id int, s search, wg *sync.WaitGroup, jobs <-chan *access) {
 		args := job.values()
 		resp, err := tryPost(s.url, args, 5)
 		if err != nil {
-			failFatal(err, "Thread %d failed on %v", job)
+			failFatal(err, "Thread %d failed on %v", id, job)
 		}
 
 		text := string(resp)

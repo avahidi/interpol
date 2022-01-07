@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"log"
 
-	"bitbucket.org/vahidi/interpol"
+	"github.com/avahidi/interpol"
 )
 
 // this is the internal structure the handler will use for its own data

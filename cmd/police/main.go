@@ -8,8 +8,7 @@ import (
 	"os"
 	"strings"
 	"time"
-
-	"bitbucket.org/vahidi/interpol"
+	"github.com/avahidi/interpol"
 )
 
 var file = flag.String("f", "", "Read commands from this file")

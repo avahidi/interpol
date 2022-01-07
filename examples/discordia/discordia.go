@@ -10,7 +10,7 @@ import (
 	"log"
 	"math/rand"
 
-	"bitbucket.org/vahidi/interpol"
+	"github.com/avahidi/interpol"
 )
 
 // input data stolen from wikipedia:

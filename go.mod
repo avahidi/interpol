@@ -1,3 +1,3 @@
-module bitbucket.org/vahidi/interpol
+module github.com/avahidi/interpol
 
 go 1.13

@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"time"
 
-	"bitbucket.org/vahidi/interpol"
+	"github.com/avahidi/interpol"
 )
 
 type item struct {
