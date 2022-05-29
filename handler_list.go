@@ -71,7 +71,7 @@ func newSetHandler(ctx *Interpol, text string, data *Parameters) (Handler, error
 }
 
 func newListHandler(items []string, data *Parameters) (Handler, error) {
-	if data.GetBoolean("empty", false) {
+	if data.GetBoolean("optional", false) {
 		items = append(items, "")
 	}
 

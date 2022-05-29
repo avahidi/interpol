@@ -23,8 +23,8 @@ var linearFileTestdata = []testdataSingle{
 	{"file some-linear", "{{file, filename=testdata/data1.txt mode=linear count=2}}", file1[:2]},
 	{"file more-linear", "{{file, filename=testdata/data1.txt mode=linear count=5}}",
 		append(file1, file1[0], file1[1])},
-	{"file all-linear-empty", "{{file, filename=testdata/data1.txt mode=linear empty=true}}", append(file1, "")},
-	{"file more-linear-empty", "{{file, filename=testdata/data1.txt mode=linear empty=true count=5}}",
+	{"file all-linear-optional", "{{file, filename=testdata/data1.txt mode=linear optional=true}}", append(file1, "")},
+	{"file more-linear-optional", "{{file, filename=testdata/data1.txt mode=linear optional=true count=5}}",
 		append(file1, "", file1[0])},
 }
 

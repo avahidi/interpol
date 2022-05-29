@@ -6,33 +6,43 @@
 Interpol
 ========
 
-**Interpol** is a minimal `string interpolation <https://en.wikipedia.org/wiki/String_interpolation>`_
-library written in Go. It can be used to generate a series of strings from a set of rules.
-This is useful for example for people doing penetration testing or fuzzing.
+**Interpol** is a minimal rule-based `string interpolation <https://en.wikipedia.org/wiki/String_interpolation>`_ library for Go applications.
+
+It can be used in security applications and elsewhere where you want to generate data based on some known format (e.g. passwords that start with a letter and end with a digit). It could for example allow you to create a small corpus instead of doing an exhaustive search.
 
 
-**Police** is a command-line interface for Interpol. It is not as powerful as embedding Interpol in your
-own application (which allows you to create custom interpolators and modifiers) but still very handy if you are a
-CLI type of person.
+The library is very simple yet flexible, and even allows you to define your own operators. See the examples/ folder for more information.
 
 
-To install police, install golang then run this:
+Police
+------
+Police is the Interpol command-line utility. If you don't care about embedding Interpol in your own application and/or adding custom functionality, this is what you should use.
 
-    go get github.com/avahidi/interpol/cmd/...
 
 
-Usage example
--------------
+Example
+~~~~~~~
 
-Consider the following problem: you have forgotten your password to the company mainframe.
+Assume you have forgotten your password to the company mainframe.
 You do however remember that the password had the following format::
+
 
     <one of the Friends characters> <a digit> <a currency sign>
 
-Since this is something that can be defined as a bunch of rules, we can use police to generate all possible combinations::
 
-    # 'friends.txt' is a file containing one friends character per line
+We define these as string interpolations rules:
+
+#. We write a *set* rule for the currency signs: "{{set data='£$¥€'}}"
+#. We write a *counter* rule to count from 0 to 9: "{{counter min=0 max=9}}"
+#. We create a file named 'friends.txt' with all the characters. Then we create a *file* rule as follows: "{{file filename='friends.txt'}}"
+
+We put all these together as one string and execute it using Police:
+
+
     $ police "{{file filename='friends.txt'}}{{counter min=0 max=9}}{{set data='£$¥€'}}"
+
+Which should generate the following output::
+
 
     Rachel0£
     Monica0£
@@ -45,7 +55,19 @@ Since this is something that can be defined as a bunch of rules, we can use poli
 You may now use these candidates with a password recovery tool to find your lost password in no time.
 
 
-Interpolators
+Installing
+----------
+
+To install Interpol, first install golang then run this:
+
+    go install github.com/avahidi/interpol@latest
+
+If you are interested in Police, this is what you want instead:
+
+    go install github.com/avahidi/interpol/cmd/police@latest
+
+
+Documentation
 -------------
 
 In our example above the rules were defined as expressions embedded in a string.
@@ -61,27 +83,32 @@ For example::
 
     {{counter min=1 max=10 step=3}}
 
+
+Interpolators
+~~~~~~~~~~~~~
+
 The following interpolators are currently available::
+
 
     {{counter [min=0] [max=10] [step=1] [format="%d] }}
     {{random [min=0] [max=100] [count=5] [format="%d"] }}
-    {{file filename="somefile" [count=-1] [mode=linear] [empty=false] }}
-    {{set data="some input" [sep=""] [count=-1] [mode=linear] [empty=false] }}
+    {{file filename="somefile" [count=-1] [mode=linear] [optional=false] }}
+    {{set data="some input" [sep=""] [count=-1] [mode=linear] [optional=false] }}
     {{copy from="others-name" }}
 
 Where
 
-- [parameter=value] indicates an optional parameter, value is the default value
-- valid values for mode are: linear, random or perm
-- format is standard Go fmt.Printf() format string (which is fairly similar to C format strings)
-- empty adds an empty string to the result. This is useful for optional values.
-- copy repeats the value of another interpolation (see below)
+#. [parameter=value] indicates an optional parameter, value is the default value
+#. valid values for mode are: linear, random or perm
+#. format is standard Go fmt.Printf() format string (which is fairly similar to C format strings)
+#. optional means the output is optional (i.e. it may be empty).
+#. copy repeats the value of another interpolation (see below)
 
 
 Copying
 ~~~~~~~
 
-Interpolators may be given a name. This is needed when using copy::
+Interpolators may be given a name. This is needed when using copy:
 
     "{{counter name=mycounter}} {{copy from=mycounter}}"
 
@@ -106,53 +133,12 @@ Currently the following modifiers exist:
 - *capitalize*: capitalize each word
 - *1337*: leet speak modifier (random upper/lower case)
 
-For example, the following will yield "Yes", "No" and "Maybe"::
+For example::
 
-    {{set data="YES,no,mayBE" sep="," modifier=capitalize}}
-
-
-API
----
-
-Interpol can be used as a library in your own programs::
-
-    package main
-
-    import (
-        "fmt"
-        "log"
-        "bitbucket.org/vahidi/interpol"
-    )
-
-    func main() {
-        ip := interpol.New()
-        vs, err := ip.AddMultiple(
-            "{{counter min=10 max=33 step=7}}",
-            "{{set data='ABCD' mode='linear'}}",
-            "{{counter min=0 max=9}}",
-        )
-
-        if err != nil {
-            log.Fatal(err)
-        }
-
-        for ip.Next() {
-            fmt.Printf("%s-%s-%s\n", vs[0], vs[1], vs[2])
-        }
-    }
-    // 10-A-0
-    // 17-A-0
-    // ...
-
-Some more interesting examples can be found in the examples/ folder:
-
-- **hackernews** - download 3 random HN comments from firebase
-- **nena** - demonstrates use of copy
-- **hodor** - as the name clearly implies this one teaches you to create custom interpolators
-- **discordia** - demonstrates use of custom modifiers
-- **webpass** - web form brute force example, because we are too cool to use hydra
-
-
+    $ police '{{set data="YES,no,mayBE" sep="," modifier=capitalize}}'
+    Yes
+    No
+    Maybe
 
 
 
@@ -162,4 +148,3 @@ License
 This library is licensed under the GNU GENERAL PUBLIC LICENSE, version 2 (GPLv2).
 
 See the file LICENSE for more information.
-
